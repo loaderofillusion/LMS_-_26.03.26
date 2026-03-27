@@ -1,5 +1,6 @@
 import datetime
 import os
+import hashlib
 from flask import Flask, render_template, redirect, request, abort, make_response, jsonify, session
 from waitress import serve
 from data import db_session
@@ -194,8 +195,11 @@ def index():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
+
     if form.validate_on_submit():
-        if form.password.data != form.password_again.data:
+        password = hashlib.sha256(form.password.data.encode('utf-8')).hexdigest()
+        password_again = hashlib.sha256(form.password_again.data.encode('utf-8')).hexdigest()
+        if password != password_again:
             return render_template('register.html', title='Регистрация',
                                    form=form,
                                    message="Пароли не совпадают")
@@ -211,7 +215,7 @@ def register():
             about=form.about.data,
             age=form.age.data if hasattr(form, 'age') else 12
         )
-        user.set_password(form.password.data)
+        user.set_password(password)
         db_sess.add(user)
         db_sess.commit()
 
@@ -230,7 +234,7 @@ def login():
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.email == form.email.data).first()
-        if user and user.check_password(form.password.data):
+        if user and user.check_password(hashlib.sha256(form.password.data.encode('utf-8')).hexdigest()):
             login_user(user, remember=form.remember_me.data)
             return redirect("/")
         return render_template('login.html',
@@ -461,6 +465,16 @@ def api_user_progress():
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
+@app.route('/leaderboard')
+@login_required
+def leaderboard():
+    db_sess = db_session.create_session()
+    data = db_sess.query(User.name, UserProgress.completed_lessons, UserProgress.total_xp).join(User, User.id == UserProgress.user_id).order_by(UserProgress.total_xp.desc()).all()
+
+
+    print(data)
+
+    return render_template("leaderboard.html", data=data)
 
 if __name__ == '__main__':
     db_session.global_init("db/educational.db")
