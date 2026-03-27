@@ -7,6 +7,6 @@ class RegisterForm(FlaskForm):
     password = PasswordField('Пароль', validators=[DataRequired()])
     password_again = PasswordField('Повторите пароль', validators=[DataRequired()])
     name = StringField('Имя пользователя', validators=[DataRequired()])
-    age = IntegerField('Возраст', validators=[DataRequired(), NumberRange(min=7, max=15)])
+    age = IntegerField('Возраст', validators=[DataRequired(), NumberRange(min=7, max=15, message="Возраст должен быть от 7 до 15 лет")])
     about = TextAreaField("Немного о себе")
     submit = SubmitField('Зарегистрироваться')
