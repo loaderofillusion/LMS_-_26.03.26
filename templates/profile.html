@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Профиль - CodeLearn{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <div class="display-1 mb-3">👨‍🎓</div>
+                <h3>{{ user.name }}</h3>
+                <p class="text-muted">{{ user.email }}</p>
+                <p>Возраст: {{ user.age }} лет</p>
+                <hr>
+                <div class="d-flex justify-content-around">
+                    <div>
+                        <h4>{{ total_xp }}</h4>
+                        <small>XP</small>
+                    </div>
+                    <div>
+                        <h4>{{ completed_lessons }}/{{ total_lessons }}</h4>
+                        <small>Уроков</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h3>🏆 Достижения</h3>
+                {% if achievements %}
+                    <div class="row">
+                        {% for ua in achievements %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card">
+                                    <div class="card-body text-center">
+                                        <span class="display-4">{{ ua.achievement.icon }}</span>
+                                        <h5>{{ ua.achievement.name }}</h5>
+                                        <p class="small text-muted">{{ ua.achievement.description }}</p>
+                                        <small class="text-muted">Получено: {{ ua.earned_at.strftime('%d.%m.%Y') }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">Пока нет достижений. Пройдите уроки, чтобы получить их!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,11 @@
+alembic
+Flask
+Flask-Login
+Flask-WTF
+SQLAlchemy
+sqlalchemy-serializer
+requests
+
+
+
+pip install Flask Flask-Login Flask-WTF SQLAlchemy sqlalchemy-serializer requests alembic

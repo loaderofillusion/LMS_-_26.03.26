@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Практическое задание - CodeLearn{% endblock %}
+
+{% block styles %}
+<style>
+    .code-editor {
+        font-family: 'Courier New', monospace;
+        background: #1e1e1e;
+        color: #d4d4d4;
+        padding: 15px;
+        border-radius: 10px;
+        border: none;
+        width: 100%;
+        min-height: 300px;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">💻 {{ task.title }}</h2>
+                <div class="alert alert-info">
+                    <h5>📝 Задание:</h5>
+                    <p>{{ task.description }}</p>
+                </div>
+                
+                {% if message %}
+                    <div class="alert alert-{{ 'success' if '✅' in message else 'danger' }}">
+                        {{ message }}
+                    </div>
+                {% endif %}
+                
+                {% if solved %}
+                    <div class="alert alert-success">
+                        <h5>🎉 Отлично!</h5>
+                        <p>Задание выполнено! +50 XP</p>
+                        <a href="/lessons" class="btn btn-success">Продолжить обучение</a>
+                    </div>
+                {% else %}
+                    <form method="POST">
+                        <label class="form-label fw-bold">Ваш код:</label>
+                        <textarea name="code" class="code-editor" rows="10">{{ task.initial_code }}</textarea>
+                        <button type="submit" class="btn btn-primary mt-3">Проверить решение</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

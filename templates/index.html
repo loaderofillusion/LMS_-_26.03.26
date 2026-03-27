@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Главная - CodeLearn{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto text-center">
+        <div class="card p-5">
+            <h1 class="display-4 mb-4">🐍 Добро пожаловать в CodeLearn!</h1>
+            <p class="lead">Изучай программирование весело и увлекательно с помощью интерактивных уроков, игр и заданий!</p>
+
+            {% if current_user.is_authenticated %}
+                <div class="mt-4">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card p-3">
+                                <h3>⭐ {{ total_xp }}</h3>
+                                <p>Очков опыта</p>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card p-3">
+                                <h5>Прогресс обучения</h5>
+                                <div class="progress">
+                                    <div class="progress-bar xp-bar" style="width: {{ (total_xp / 1000 * 100) if total_xp else 0 }}%"></div>
+                                </div>
+                                <a href="/lessons" class="btn btn-primary mt-3">Продолжить обучение →</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if achievements %}
+                    <div class="mt-4">
+                        <h3>🏆 Ваши достижения</h3>
+                        {% for ua in achievements %}
+                            <div class="achievement-badge">
+                                {{ ua.achievement.icon }} {{ ua.achievement.name }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="mt-4">
+                    <a href="/register" class="btn btn-primary btn-lg">Начать обучение</a>
+                    <a href="/login" class="btn btn-outline-primary btn-lg ms-2">Войти</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
