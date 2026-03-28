@@ -183,18 +183,63 @@ def init_educational_data():
             db_sess.add(question)
             db_sess.commit()
 
-    # Задания для всех уроков
+    # Практические задания для всех 11 уроков
     tasks = [
-        {"lesson_id": lesson_objects[1].id, "title": "Приветствие", "description": "Напишите программу, которая выводит 'Привет, мир!'", "initial_code": "# Напишите код здесь\n\n", "test_code": "assert 'Привет, мир!' in output", "language": "python"},
-        {"lesson_id": lesson_objects[2].id, "title": "Мои переменные", "description": "Создайте переменную name со значением 'Python' и выведите её", "initial_code": "# Создайте переменную name\n\n# Выведите переменную\n", "test_code": "assert 'Python' in output", "language": "python"},
-        {"lesson_id": lesson_objects[3].id, "title": "Калькулятор", "description": "Создайте a=15 и b=4, выведите их сумму", "initial_code": "a = 15\nb = 4\n\n# Выведите сумму\n", "test_code": "assert '19' in output", "language": "python"},
-        {"lesson_id": lesson_objects[4].id, "title": "Строки", "description": "Создайте строку text='Python' и выведите её длину", "initial_code": "# Создайте строку\n\n# Выведите длину\n", "test_code": "assert '6' in output", "language": "python"},
-        {"lesson_id": lesson_objects[5].id, "title": "Проверка возраста", "description": "Если age=16, выведите 'Несовершеннолетний'", "initial_code": "age = 16\n\n# Напишите условие\n", "test_code": "assert 'Несовершеннолетний' in output", "language": "python"},
-        {"lesson_id": lesson_objects[6].id, "title": "Оценка", "description": "Если score=75, выведите 'Хорошо'", "initial_code": "score = 75\n\n# Напишите условие\n", "test_code": "assert 'Хорошо' in output", "language": "python"},
-        {"lesson_id": lesson_objects[7].id, "title": "Счетчик", "description": "Выведите числа от 1 до 5 с помощью while", "initial_code": "# Напишите цикл while\n", "test_code": "assert '1' in output and '2' in output and '3' in output and '4' in output and '5' in output", "language": "python"},
-        {"lesson_id": lesson_objects[8].id, "title": "Перебор", "description": "Выведите все буквы слова 'Python'", "initial_code": "word = 'Python'\n\n# Напишите цикл for\n", "test_code": "assert 'P' in output and 'y' in output", "language": "python"},
-        {"lesson_id": lesson_objects[9].id, "title": "Моя функция", "description": "Создайте функцию greet, которая выводит 'Привет!'", "initial_code": "# Создайте функцию\n\n# Вызовите функцию\n", "test_code": "assert 'Привет!' in output", "language": "python"},
-        {"lesson_id": lesson_objects[10].id, "title": "Сумматор", "description": "Создайте функцию add, которая возвращает сумму двух чисел", "initial_code": "# Создайте функцию\n\n# Вызовите функцию с числами 5 и 3\n", "test_code": "assert '8' in output", "language": "python"},
+        # Урок 1
+        {"lesson_id": lesson_objects[0].id, "title": "Моя первая программа",
+         "description": "Напишите программу, которая выводит на экран текст 'Я начинаю программировать!'",
+         "initial_code": "# Напишите код здесь\n\n",
+         "test_code": "assert 'Я начинаю программировать!' in output", "language": "python"},
+        # Урок 2
+        {"lesson_id": lesson_objects[1].id, "title": "Приветствие",
+         "description": "Напишите программу, которая выводит на экран 'Привет, мир!' и 'Python - это круто!'",
+         "initial_code": "# Напишите код здесь\n\n",
+         "test_code": "assert 'Привет, мир!' in output and 'Python - это круто!' in output", "language": "python"},
+        # Урок 3
+        {"lesson_id": lesson_objects[2].id, "title": "Мои переменные",
+         "description": "Создайте переменную name со значением 'Python' и выведите её",
+         "initial_code": "# Создайте переменную name\n\n# Выведите переменную\n",
+         "test_code": "assert 'Python' in output", "language": "python"},
+        # Урок 4
+        {"lesson_id": lesson_objects[3].id, "title": "Калькулятор",
+         "description": "Создайте переменные a=15 и b=4, выведите их сумму",
+         "initial_code": "a = 15\nb = 4\n\n# Выведите сумму\n",
+         "test_code": "assert '19' in output", "language": "python"},
+        # Урок 5
+        {"lesson_id": lesson_objects[4].id, "title": "Строки",
+         "description": "Создайте строку text='Python' и выведите её длину",
+         "initial_code": "# Создайте строку\n\n# Выведите длину\n",
+         "test_code": "assert '6' in output", "language": "python"},
+        # Урок 6
+        {"lesson_id": lesson_objects[5].id, "title": "Проверка возраста",
+         "description": "Если age=16, выведите 'Несовершеннолетний'",
+         "initial_code": "age = 16\n\n# Напишите условие\n",
+         "test_code": "assert 'Несовершеннолетний' in output", "language": "python"},
+        # Урок 7
+        {"lesson_id": lesson_objects[6].id, "title": "Оценка",
+         "description": "Если score=75, выведите 'Хорошо'",
+         "initial_code": "score = 75\n\n# Напишите условие\n",
+         "test_code": "assert 'Хорошо' in output", "language": "python"},
+        # Урок 8
+        {"lesson_id": lesson_objects[7].id, "title": "Счетчик",
+         "description": "Выведите числа от 1 до 5 с помощью цикла while",
+         "initial_code": "# Напишите цикл while\n",
+         "test_code": "assert '1' in output and '2' in output and '3' in output and '4' in output and '5' in output", "language": "python"},
+        # Урок 9
+        {"lesson_id": lesson_objects[8].id, "title": "Перебор",
+         "description": "Выведите все буквы слова 'Python' с помощью цикла for",
+         "initial_code": "word = 'Python'\n\n# Напишите цикл for\n",
+         "test_code": "assert 'P' in output and 'y' in output and 't' in output and 'h' in output and 'o' in output and 'n' in output", "language": "python"},
+        # Урок 10
+        {"lesson_id": lesson_objects[9].id, "title": "Моя функция",
+         "description": "Создайте функцию greet, которая выводит 'Привет!'",
+         "initial_code": "# Создайте функцию\n\n# Вызовите функцию\n",
+         "test_code": "assert 'Привет!' in output", "language": "python"},
+        # Урок 11
+        {"lesson_id": lesson_objects[10].id, "title": "Сумматор",
+         "description": "Создайте функцию add, которая принимает два числа и возвращает их сумму. Вызовите её с числами 5 и 3",
+         "initial_code": "# Создайте функцию\n\n# Вызовите функцию\n",
+         "test_code": "assert '8' in output", "language": "python"},
     ]
 
     for task_data in tasks:
