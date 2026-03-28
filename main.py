@@ -1,7 +1,7 @@
 import datetime
 import os
 import hashlib
-from flask import Flask, render_template, redirect, request, abort, make_response, jsonify, session
+from flask import Flask, render_template, redirect, request, abort, make_response, jsonify, g, session
 from waitress import serve
 from data import db_session
 from data.users import User
@@ -34,12 +34,18 @@ def load_user(user_id):
     return db_sess.get(User, user_id)
 
 
-# Инициализация данных для образовательной платформы
+def get_db():
+    """Получаем сессию базы данных (одна на запрос)"""
+    if not hasattr(g, '_db_session'):
+        g._db_session = db_session.create_session()
+    return g._db_session
+
 def init_educational_data():
     db_sess = db_session.create_session()
 
     # Проверяем, есть ли уже уроки
     if db_sess.query(Lesson).first():
+        db_sess.close()
         return
 
     # Создаем модули и уроки по программированию
@@ -64,61 +70,124 @@ def init_educational_data():
 
     # Уроки для каждого модуля
     lessons_data = [
-        # Модуль 1: Основы программирования
+        # Модуль 1: Основы программирования (уроки 1-2)
         {"title": "Что такое программирование?",
-         "content": "Программирование - это процесс создания компьютерных программ. Язык Python - отличный выбор для начинающих!",
+         "content": "<p>Программирование - это процесс создания компьютерных программ. Язык Python - отличный выбор для начинающих!</p><p>Python - это интерпретируемый язык, который читает код построчно. Он очень популярен для обучения программированию.</p>",
          "order": 1, "xp_reward": 50, "module_id": module_objects[0].id},
         {"title": "Первая программа",
-         "content": "Напишем программу, которая выводит 'Hello, World!'. Используйте команду print()", "order": 2,
-         "xp_reward": 50, "module_id": module_objects[0].id},
+         "content": "<p>Напишем программу, которая выводит текст на экран. Используйте команду print().</p><p>Пример: <code>print('Привет, мир!')</code></p><p>Команда print() выводит текст в консоль. Текст нужно заключать в кавычки.</p>",
+         "order": 2, "xp_reward": 50, "module_id": module_objects[0].id},
 
-        # Модуль 2: Переменные и типы данных
+        # Модуль 2: Переменные и типы данных (уроки 3-5)
         {"title": "Что такое переменные?",
-         "content": "Переменные - это контейнеры для хранения данных. Пример: name = 'Анна'", "order": 1,
-         "xp_reward": 75, "module_id": module_objects[1].id},
+         "content": "<p>Переменные - это контейнеры для хранения данных. Пример: <code>name = 'Анна'</code></p><p>Переменная - это имя, которое ссылается на значение в памяти компьютера. Знак = называется оператором присваивания.</p>",
+         "order": 1, "xp_reward": 75, "module_id": module_objects[1].id},
         {"title": "Числовые типы данных",
-         "content": "int (целые числа) и float (дробные числа). Пример: age = 10, price = 99.99", "order": 2,
-         "xp_reward": 75, "module_id": module_objects[1].id},
+         "content": "<p>В Python есть два основных числовых типа: int (целые числа) и float (дробные числа).</p><p>Пример: <code>age = 10</code> (int), <code>price = 99.99</code> (float)</p><p>С числами можно выполнять арифметические операции: +, -, *, /, // (целое деление), % (остаток).</p>",
+         "order": 2, "xp_reward": 75, "module_id": module_objects[1].id},
         {"title": "Строки и булевы значения",
-         "content": "str (текст) и bool (True/False). Пример: name = 'Вася', is_student = True", "order": 3,
-         "xp_reward": 75, "module_id": module_objects[1].id},
+         "content": "<p>str (строка) - тип данных для текста. Строки заключаются в одинарные или двойные кавычки.</p><p>bool (булево значение) - может быть True или False. Используется в условиях.</p><p>Пример: <code>name = 'Вася'</code>, <code>is_student = True</code></p>",
+         "order": 3, "xp_reward": 75, "module_id": module_objects[1].id},
 
-        # Модуль 3: Условные операторы
-        {"title": "Оператор if", "content": "if позволяет выполнять код только при определенном условии", "order": 1,
-         "xp_reward": 100, "module_id": module_objects[2].id},
+        # Модуль 3: Условные операторы (уроки 6-7)
+        {"title": "Оператор if",
+         "content": "<p>if позволяет выполнять код только при определенном условии.</p><p>Пример:</p><pre>if age >= 18:\n    print('Совершеннолетний')</pre><p>Важно! После условия ставится двоеточие, а тело условия пишется с отступом (4 пробела).</p>",
+         "order": 1, "xp_reward": 100, "module_id": module_objects[2].id},
         {"title": "Операторы else и elif",
-         "content": "else выполняется, если условие ложно. elif позволяет проверить несколько условий", "order": 2,
-         "xp_reward": 100, "module_id": module_objects[2].id},
+         "content": "<p>else выполняется, если условие ложно. elif позволяет проверить несколько условий.</p><p>Пример:</p><pre>if score >= 90:\n    print('Отлично')\nelif score >= 70:\n    print('Хорошо')\nelse:\n    print('Нужно учиться')</pre>",
+         "order": 2, "xp_reward": 100, "module_id": module_objects[2].id},
 
-        # Модуль 4: Циклы
-        {"title": "Цикл while", "content": "while повторяет код пока условие истинно", "order": 1, "xp_reward": 100,
-         "module_id": module_objects[3].id},
-        {"title": "Цикл for", "content": "for используется для перебора элементов", "order": 2, "xp_reward": 100,
-         "module_id": module_objects[3].id},
+        # Модуль 4: Циклы (уроки 8-9)
+        {"title": "Цикл while",
+         "content": "<p>while повторяет код пока условие истинно.</p><p>Пример:</p><pre>count = 0\nwhile count < 5:\n    print(count)\n    count = count + 1</pre><p>Важно не забывать менять переменную в условии, иначе цикл станет бесконечным!</p>",
+         "order": 1, "xp_reward": 100, "module_id": module_objects[3].id},
+        {"title": "Цикл for",
+         "content": "<p>for используется для перебора элементов последовательности.</p><p>Пример:</p><pre>for i in range(5):\n    print(i)\n\nfor letter in 'Python':\n    print(letter)</pre><p>range(n) создает последовательность от 0 до n-1.</p>",
+         "order": 2, "xp_reward": 100, "module_id": module_objects[3].id},
 
-        # Модуль 5: Функции
-        {"title": "Создание функций", "content": "Функции - это блоки кода, которые можно вызывать многократно",
+        # Модуль 5: Функции (уроки 10-11)
+        {"title": "Создание функций",
+         "content": "<p>Функции - это блоки кода, которые можно вызывать многократно. Создаются с помощью def.</p><p>Пример:</p><pre>def greet():\n    print('Привет!')\n\ngreet()  # вызов функции</pre>",
          "order": 1, "xp_reward": 125, "module_id": module_objects[4].id},
         {"title": "Параметры и возврат значений",
-         "content": "Функции могут принимать параметры и возвращать результаты", "order": 2, "xp_reward": 125,
-         "module_id": module_objects[4].id},
+         "content": "<p>Функции могут принимать параметры и возвращать результаты с помощью return.</p><p>Пример:</p><pre>def add(a, b):\n    return a + b\n\nresult = add(5, 3)\nprint(result)  # 8</pre>",
+         "order": 2, "xp_reward": 125, "module_id": module_objects[4].id},
     ]
 
+    lesson_objects = []
     for lesson_data in lessons_data:
         lesson = Lesson(**lesson_data)
         db_sess.add(lesson)
         db_sess.commit()
+        lesson_objects.append(lesson)
 
     # Создаем вопросы для тестов
     quizzes = [
-        {"lesson_id": 1, "questions": [
+        {"lesson_id": lesson_objects[0].id, "questions": [
             {"text": "Что такое программирование?",
              "options": "Процесс создания программ,Изучение компьютеров,Работа с текстом,Игры", "correct": 0},
-            {"text": "Какой язык рекомендуется для начинающих?", "options": "C++,Java,Python,JavaScript", "correct": 2},
+            {"text": "Какой язык рекомендуется для начинающих?",
+             "options": "C++,Java,Python,JavaScript", "correct": 2},
         ]},
-        {"lesson_id": 2, "questions": [
-            {"text": "Как вывести текст в Python?", "options": "print(),output(),echo(),write()", "correct": 0},
-            {"text": "Что выведет print('Hello')?", "options": "Hello,'Hello',hello,Ошибка", "correct": 0},
+        {"lesson_id": lesson_objects[1].id, "questions": [
+            {"text": "Как вывести текст в Python?",
+             "options": "print(),output(),echo(),write()", "correct": 0},
+            {"text": "Что выведет print('Hello')?",
+             "options": "Hello,'Hello',hello,Ошибка", "correct": 0},
+        ]},
+        {"lesson_id": lesson_objects[2].id, "questions": [
+            {"text": "Как правильно создать переменную?",
+             "options": "name = 'Анна',name == 'Анна','Анна' = name", "correct": 0},
+            {"text": "Что такое переменная?",
+             "options": "Контейнер для данных,Функция,Цикл", "correct": 0},
+        ]},
+        {"lesson_id": lesson_objects[3].id, "questions": [
+            {"text": "Какой тип данных у числа 10?",
+             "options": "int,float,str", "correct": 0},
+            {"text": "Сколько будет 10 // 3?",
+             "options": "3,3.33,4,Ошибка", "correct": 0},
+        ]},
+        {"lesson_id": lesson_objects[4].id, "questions": [
+            {"text": "Какое значение у типа bool?",
+             "options": "True/False,1/0,Yes/No", "correct": 0},
+            {"text": "Как создать строку?",
+             "options": "'Привет',\"Привет\",Оба варианта", "correct": 2},
+        ]},
+        {"lesson_id": lesson_objects[5].id, "questions": [
+            {"text": "Что делает оператор if?",
+             "options": "Выполняет код при условии,Повторяет код,Создает функцию", "correct": 0},
+            {"text": "Как проверить, что a равно 5?",
+             "options": "if a = 5:,if a == 5:,if a === 5:", "correct": 1},
+        ]},
+        {"lesson_id": lesson_objects[6].id, "questions": [
+            {"text": "Что делает else?",
+             "options": "Выполняется если условие ложно,Проверяет другое условие,Завершает программу", "correct": 0},
+            {"text": "Что делает elif?",
+             "options": "Проверяет доп. условие,Завершает программу,Выводит ошибку", "correct": 0},
+        ]},
+        {"lesson_id": lesson_objects[7].id, "questions": [
+            {"text": "Что делает цикл while?",
+             "options": "Повторяет пока условие истинно,Выполняет один раз,Создает функцию", "correct": 0},
+            {"text": "Как остановить цикл?",
+             "options": "break,continue,stop", "correct": 0},
+        ]},
+        {"lesson_id": lesson_objects[8].id, "questions": [
+            {"text": "Что делает цикл for?",
+             "options": "Перебирает элементы,Повторяет пока условие,Выполняет один раз", "correct": 0},
+            {"text": "Что выведет for i in range(3): print(i)?",
+             "options": "0 1 2,1 2 3,0 1 2 3", "correct": 0},
+        ]},
+        {"lesson_id": lesson_objects[9].id, "questions": [
+            {"text": "Как создать функцию?",
+             "options": "def,func,function", "correct": 0},
+            {"text": "Как вызвать функцию greet?",
+             "options": "greet(),call greet(),greet", "correct": 0},
+        ]},
+        {"lesson_id": lesson_objects[10].id, "questions": [
+            {"text": "Что делает return?",
+             "options": "Возвращает значение,Выводит текст,Завершает программу", "correct": 0},
+            {"text": "Сколько параметров в функции def add(a, b)?",
+             "options": "2,1,3", "correct": 0},
         ]},
     ]
 
@@ -138,19 +207,76 @@ def init_educational_data():
             db_sess.add(question)
             db_sess.commit()
 
-    # Создаем задания
+    # Создаем задания для всех уроков (только с поясняющими комментариями, без готового кода)
     tasks = [
-        {"lesson_id": 2, "title": "Напиши приветствие",
-         "description": "Напишите программу, которая выводит 'Привет, мир!'",
-         "initial_code": "# Напишите код здесь\n\n", "test_code": "assert 'Привет, мир!' in output",
+        # Урок 1: Что такое программирование? (теоретический урок, задание на понимание)
+        {"lesson_id": lesson_objects[0].id, "title": "Моя первая программа",
+         "description": "Напишите программу, которая выводит на экран текст 'Я начинаю программировать!'. Используйте команду print().",
+         "initial_code": "# Напишите код здесь\n\n\n",
+         "test_code": "assert 'Я начинаю программировать!' in output", "language": "python"},
+
+        # Урок 2: Первая программа
+        {"lesson_id": lesson_objects[1].id, "title": "Приветствие",
+         "description": "Напишите программу, которая выводит на экран:\n1. Строку 'Привет, мир!'\n2. Строку 'Python - это круто!'\nКаждое сообщение должно быть на новой строке.",
+         "initial_code": "# Используйте print() для вывода текста\n# Каждый print() выводит текст с новой строки\n\n\n",
+         "test_code": "assert 'Привет, мир!' in output and 'Python - это круто!' in output", "language": "python"},
+
+        # Урок 3: Переменные
+        {"lesson_id": lesson_objects[2].id, "title": "Мои переменные",
+         "description": "Создайте три переменные:\n- name с вашим именем\n- age с вашим возрастом\n- city с названием вашего города\nЗатем выведите их на экран, каждое с новой строки.",
+         "initial_code": "# Создайте переменные\n\n\n# Выведите их на экран\n\n\n",
+         "test_code": "assert output != ''", "language": "python"},
+
+        # Урок 4: Числовые типы данных
+        {"lesson_id": lesson_objects[3].id, "title": "Калькулятор",
+         "description": "Создайте две переменные a = 15 и b = 4. Вычислите и выведите:\n1. Сумму a + b\n2. Разность a - b\n3. Произведение a * b\n4. Деление a / b\n5. Целочисленное деление a // b\n6. Остаток от деления a % b",
+         "initial_code": "a = 15\nb = 4\n\n# Выполните вычисления и выведите результаты\n\n\n",
+         "test_code": "assert '19' in output and '11' in output and '60' in output and '3.75' in output and '3' in output and '3' in output",
          "language": "python"},
-        {"lesson_id": 4, "title": "Калькулятор", "description": "Создайте переменные a=10 и b=5, выведите их сумму",
-         "initial_code": "a = 10\nb = 5\n\n# Вычислите сумму\n", "test_code": "assert '15' in output",
+
+        # Урок 5: Строки и булевы значения
+        {"lesson_id": lesson_objects[4].id, "title": "Строки и логика",
+         "description": "1. Создайте строку text = 'Python programming'\n2. Выведите длину этой строки (используйте len())\n3. Создайте булеву переменную is_fun = True\n4. Выведите значение is_fun\n5. Выведите результат сравнения: является ли длина строки больше 10?",
+         "initial_code": "# Выполните задание\n\n\n",
+         "test_code": "assert 'True' in output or 'False' in output", "language": "python"},
+
+        # Урок 6: Условие if
+        {"lesson_id": lesson_objects[5].id, "title": "Проверка возраста",
+         "description": "Напишите программу, которая:\n1. Создает переменную age = 16\n2. Если age >= 18, выводит 'Вы совершеннолетний'\n3. Если age < 18, выводит 'Вы несовершеннолетний'",
+         "initial_code": "age = 16\n\n# Напишите условие\n\n\n",
+         "test_code": "assert 'Вы несовершеннолетний' in output", "language": "python"},
+
+        # Урок 7: else и elif
+        {"lesson_id": lesson_objects[6].id, "title": "Оценка знаний",
+         "description": "Напишите программу, которая:\n1. Создает переменную score = 75\n2. Если score >= 90, выводит 'Отлично!'\n3. Иначе если score >= 70, выводит 'Хорошо!'\n4. Иначе выводит 'Нужно учиться лучше!'",
+         "initial_code": "score = 75\n\n# Напишите условие\n\n\n",
+         "test_code": "assert 'Хорошо!' in output", "language": "python"},
+
+        # Урок 8: Цикл while
+        {"lesson_id": lesson_objects[7].id, "title": "Счетчик",
+         "description": "Используя цикл while, выведите числа от 1 до 10. Каждое число должно быть на новой строке.\nПодсказка: создайте переменную-счетчик, увеличивайте её на 1 в каждой итерации.",
+         "initial_code": "# Напишите цикл while\n\n\n",
+         "test_code": "assert '1' in output and '2' in output and '3' in output and '4' in output and '5' in output and '6' in output and '7' in output and '8' in output and '9' in output and '10' in output",
          "language": "python"},
-        {"lesson_id": 6, "title": "Проверка возраста",
-         "description": "Напишите программу, которая проверяет, является ли возраст >= 18",
-         "initial_code": "age = 15\n\n# Напишите условие\n",
-         "test_code": "assert 'Несовершеннолетний' in output or 'Совершеннолетний' in output", "language": "python"},
+
+        # Урок 9: Цикл for
+        {"lesson_id": lesson_objects[8].id, "title": "Перебор элементов",
+         "description": "Используя цикл for, выполните следующие задачи:\n1. Выведите все числа от 0 до 9\n2. Выведите все буквы слова 'Python' (каждую с новой строки)\n3. Выведите числа от 10 до 20 (включительно) с шагом 2",
+         "initial_code": "# Задача 1: числа от 0 до 9\n\n\n# Задача 2: буквы слова 'Python'\n\n\n# Задача 3: числа от 10 до 20 с шагом 2\n\n\n",
+         "test_code": "assert '0' in output and 'P' in output and 'y' in output and '10' in output and '12' in output",
+         "language": "python"},
+
+        # Урок 10: Создание функций
+        {"lesson_id": lesson_objects[9].id, "title": "Моя функция",
+         "description": "Создайте функцию greet, которая:\n1. Принимает параметр name (имя)\n2. Выводит приветствие 'Привет, [имя]!'\n3. Вызовите функцию с вашим именем",
+         "initial_code": "# Создайте функцию greet\n\n\n# Вызовите функцию\n\n\n",
+         "test_code": "assert output != ''", "language": "python"},
+
+        # Урок 11: Параметры и возврат значений
+        {"lesson_id": lesson_objects[10].id, "title": "Калькулятор функций",
+         "description": "Создайте функцию calculator, которая:\n1. Принимает три параметра: a, b, operation\n2. Если operation == '+', возвращает сумму a и b\n3. Если operation == '-', возвращает разность a и b\n4. Если operation == '*', возвращает произведение a и b\n5. Если operation == '/', возвращает частное a и b\n6. Вызовите функцию с разными операциями и выведите результаты",
+         "initial_code": "# Создайте функцию calculator\n\n\n# Вызовите функцию\n\n\n",
+         "test_code": "assert output != ''", "language": "python"},
     ]
 
     for task_data in tasks:
@@ -163,9 +289,13 @@ def init_educational_data():
         {"name": "Первые шаги", "description": "Завершите первый урок", "icon": "🌟", "xp_reward": 50,
          "required_lessons": 1},
         {"name": "Новичок", "description": "Наберите 200 XP", "icon": "📚", "xp_reward": 100, "required_xp": 200},
-        {"name": "Мастер переменных", "description": "Завершите модуль 'Переменные и типы данных'", "icon": "🔤",
+        {"name": "Мастер переменных", "description": "Завершите модуль 'Переменные'", "icon": "🔤",
          "xp_reward": 150, "required_modules": 2},
         {"name": "Программист", "description": "Наберите 500 XP", "icon": "💻", "xp_reward": 200, "required_xp": 500},
+        {"name": "Гуру циклов", "description": "Завершите модуль 'Циклы'", "icon": "🔄", "xp_reward": 150,
+         "required_modules": 4},
+        {"name": "Мастер функций", "description": "Завершите модуль 'Функции'", "icon": "⚙️", "xp_reward": 150,
+         "required_modules": 5},
     ]
 
     for ach in achievements:
@@ -173,6 +303,7 @@ def init_educational_data():
         db_sess.add(achievement)
         db_sess.commit()
 
+    db_sess.close()
 
 @app.route("/")
 def index():
@@ -282,11 +413,10 @@ def lesson_detail(lesson_id):
 
     return render_template("lesson_detail.html", lesson=lesson, completed=completed)
 
-
-@app.route('/lesson/<int:lesson_id>/complete', methods=['POST', 'GET'])
+@app.route('/lesson/<int:lesson_id>/complete', methods=['GET'])
 @login_required
 def complete_lesson(lesson_id):
-    db_sess = db_session.create_session()
+    db_sess = get_db()
     lesson = db_sess.get(Lesson, lesson_id)
     if not lesson:
         abort(404)
@@ -306,16 +436,26 @@ def complete_lesson(lesson_id):
         progress.total_xp += lesson.xp_reward
         db_sess.commit()
 
-        # Проверяем достижения
+        # Помечаем тест как завершенный
+        quiz_obj = db_sess.query(Quiz).filter(Quiz.lesson_id == lesson_id).first()
+        if quiz_obj:
+            user_answers = db_sess.query(UserQuizAnswer).filter(
+                UserQuizAnswer.user_id == current_user.id,
+                UserQuizAnswer.quiz_id == quiz_obj.id
+            ).first()
+            if user_answers:
+                user_answers.completed = True
+                db_sess.commit()
 
+        check_achievements(current_user.id)
 
-    return jsonify({"success": True, "xp": lesson.xp_reward})
+    return redirect(f'/lesson/{lesson_id}')
 
 
 @app.route('/quiz/<int:lesson_id>', methods=['GET', 'POST'])
 @login_required
 def quiz(lesson_id):
-    db_sess = db_session.create_session()
+    db_sess = get_db()
     quiz_obj = db_sess.query(Quiz).filter(Quiz.lesson_id == lesson_id).first()
     if not quiz_obj:
         return redirect(f'/lesson/{lesson_id}')
@@ -323,25 +463,26 @@ def quiz(lesson_id):
     questions = db_sess.query(QuizQuestion).filter(QuizQuestion.quiz_id == quiz_obj.id).order_by(
         QuizQuestion.order).all()
 
-    # Проверяем, проходил ли пользователь этот тест
+    # Получаем задание для этого урока
+    task_obj = db_sess.query(Task).filter(Task.lesson_id == lesson_id).first()
+    task_id = task_obj.id if task_obj else None
+
     user_answers_record = db_sess.query(UserQuizAnswer).filter(
         UserQuizAnswer.user_id == current_user.id,
         UserQuizAnswer.quiz_id == quiz_obj.id
     ).first()
 
-    # Проверяем, пройден ли урок
     progress = db_sess.query(UserProgress).filter(UserProgress.user_id == current_user.id).first()
-    lesson_completed_from_progress = False
+    lesson_completed = False
     if progress and progress.completed_lessons:
-        lesson_completed_from_progress = str(lesson_id) in progress.completed_lessons.split(',')
+        lesson_completed = str(lesson_id) in progress.completed_lessons.split(',')
 
-    lesson_completed = lesson_completed_from_progress
     user_answers = {}
-
-    if user_answers_record:
-        if user_answers_record.answers:
+    if user_answers_record and user_answers_record.answers:
+        try:
             user_answers = json.loads(user_answers_record.answers)
-        lesson_completed = lesson_completed or user_answers_record.completed
+        except:
+            user_answers = {}
 
     if request.method == 'POST':
         score = 0
@@ -353,33 +494,73 @@ def quiz(lesson_id):
                 if int(answer) == question.correct_answer:
                     score += 1
 
+        # Тест считается пройденным ТОЛЬКО если все ответы правильные
+        test_passed = (score == len(questions))
+
         # Сохраняем ответы пользователя
         if user_answers_record:
             user_answers_record.answers = json.dumps(answers)
-            user_answers_record.completed = (score >= len(questions) / 2)
+            user_answers_record.completed = test_passed
             db_sess.commit()
         else:
             user_answers_record = UserQuizAnswer(
                 user_id=current_user.id,
                 quiz_id=quiz_obj.id,
                 answers=json.dumps(answers),
-                completed=(score >= len(questions) / 2)
+                completed=test_passed
             )
             db_sess.add(user_answers_record)
             db_sess.commit()
 
-        # Если тест пройден, но урок еще не завершен - показываем кнопку завершения
-        test_passed = (score >= len(questions) / 2)
+        return render_template("quiz.html",
+                               quiz=quiz_obj,
+                               questions=questions,
+                               score=score,
+                               total=len(questions),
+                               test_passed=test_passed,
+                               lesson_id=lesson_id,
+                               lesson_completed=lesson_completed,
+                               user_answers=answers,
+                               task_id=task_id)
 
-        return render_template("quiz.html", quiz=quiz_obj, questions=questions,
-                               score=score, total=len(questions), passed=False,
-                               lesson_id=lesson_id, lesson_completed=False,
-                               user_answers=answers, test_passed=test_passed)
-
-    return render_template("quiz.html", quiz=quiz_obj, questions=questions,
-                           passed=True, lesson_id=lesson_id,
+    return render_template("quiz.html",
+                           quiz=quiz_obj,
+                           questions=questions,
+                           lesson_id=lesson_id,
                            lesson_completed=lesson_completed,
-                           user_answers=user_answers)
+                           user_answers={},
+                           task_id=task_id)
+
+@app.route('/quiz/<int:lesson_id>/reset', methods=['GET'])
+@login_required
+def reset_quiz(lesson_id):
+    db_sess = get_db()
+    quiz_obj = db_sess.query(Quiz).filter(Quiz.lesson_id == lesson_id).first()
+
+    if quiz_obj:
+        # Полностью удаляем ответы пользователя
+        user_answers = db_sess.query(UserQuizAnswer).filter(
+            UserQuizAnswer.user_id == current_user.id,
+            UserQuizAnswer.quiz_id == quiz_obj.id
+        ).first()
+
+        if user_answers:
+            db_sess.delete(user_answers)
+            db_sess.commit()
+
+        # Также удаляем урок из пройденных (если был пройден)
+        progress = db_sess.query(UserProgress).filter(UserProgress.user_id == current_user.id).first()
+        if progress and progress.completed_lessons:
+            completed = set(progress.completed_lessons.split(','))
+            if str(lesson_id) in completed:
+                completed.remove(str(lesson_id))
+                progress.completed_lessons = ','.join(completed)
+                lesson = db_sess.get(Lesson, lesson_id)
+                if lesson:
+                    progress.total_xp -= lesson.xp_reward
+                db_sess.commit()
+
+    return redirect(f'/quiz/{lesson_id}')
 
 @app.route('/task/<int:task_id>', methods=['GET', 'POST'])
 @login_required

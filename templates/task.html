@@ -23,6 +23,21 @@
         border-color: #3b82f6;
         box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
     }
+    
+    .task-description {
+        background: #f8fafc;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+    }
+    
+    .hint {
+        background: #fef9c3;
+        border-left: 4px solid #eab308;
+        padding: 12px;
+        border-radius: 8px;
+        margin-top: 15px;
+    }
 </style>
 {% endblock %}
 
@@ -31,10 +46,14 @@
     <div class="col-lg-8 mx-auto">
         <div class="card">
             <div class="card-body">
-                <h2 class="card-title" style="color: #1f2937;">💻 {{ task.title }}</h2>
-                <div class="alert alert-info">
-                    <h5 style="color: #1f2937;">📝 Задание:</h5>
-                    <p style="color: #4b5563;">{{ task.description }}</p>
+                <h2 class="card-title">💻 {{ task.title }}</h2>
+                
+                <div class="task-description">
+                    <h5>📝 Задание:</h5>
+                    {% set lines = task.description.split('\n') %}
+                    {% for line in lines %}
+                        <p>{{ line }}</p>
+                    {% endfor %}
                 </div>
                 
                 {% if message %}
@@ -44,16 +63,24 @@
                 {% endif %}
                 
                 {% if solved %}
-                    <div class="alert alert-success">
-                        <h5 style="color: #1f2937;">🎉 Отлично!</h5>
+                    <div class="alert alert-success text-center">
+                        <h5>🎉 Отлично!</h5>
                         <p>Задание выполнено! +50 XP</p>
-                        <a href="/lessons" class="btn btn-success">Продолжить обучение</a>
+                        <div class="mt-3">
+                            <a href="/lesson/{{ task.lesson_id }}/complete" class="btn btn-success">Завершить урок</a>
+                            <a href="/lessons" class="btn btn-outline-primary">К списку уроков</a>
+                        </div>
                     </div>
                 {% else %}
                     <form method="POST">
-                        <label class="form-label fw-bold">Ваш код:</label>
-                        <textarea name="code" class="code-editor" rows="10">{{ task.initial_code }}</textarea>
-                        <button type="submit" class="btn btn-primary mt-3">Проверить решение</button>
+                        <label class="form-label fw-bold">📝 Ваш код:</label>
+                        <textarea name="code" class="code-editor" rows="12" placeholder='# Напишите свой код здесь
+# Например:
+# print("Привет, мир!")'>{{ task.initial_code }}</textarea>
+                        <div class="hint">
+                            💡 <strong>Совет:</strong> Напишите код самостоятельно, следуя заданию. Не копируйте готовые решения!
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-3">✅ Проверить решение</button>
                     </form>
                 {% endif %}
             </div>
