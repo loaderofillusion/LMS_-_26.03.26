@@ -7,9 +7,9 @@
     <div class="col-lg-8 mx-auto">
         <div class="card">
             <div class="card-body">
-                <h1 class="card-title">{{ lesson.title }}</h1>
-                <div class="badge bg-info mb-3">+{{ lesson.xp_reward }} XP</div>
-                <div class="card-text">
+                <h1 class="card-title" style="color: #1f2937;">{{ lesson.title }}</h1>
+                <div class="badge bg-info mb-3" style="background: #3b82f6 !important;">+{{ lesson.xp_reward }} XP</div>
+                <div class="card-text" style="color: #4b5563; line-height: 1.6;">
                     {{ lesson.content|safe }}
                 </div>
                 
@@ -17,8 +17,8 @@
                 
                 {% if not completed %}
                     <div class="alert alert-info">
-                        <h5>📝 После изучения материала:</h5>
-                        <ol>
+                        <h5 style="color: #1f2937;">📝 После изучения материала:</h5>
+                        <ol style="color: #4b5563;">
                             <li>Пройдите тест для закрепления знаний</li>
                             <li>Выполните практическое задание</li>
                             <li>Получите XP и двигайтесь дальше!</li>
@@ -33,13 +33,9 @@
                     </div>
                 {% else %}
                     <div class="alert alert-success">
-                        <h5>🎉 Поздравляем!</h5>
+                        <h5 style="color: #1f2937;">🎉 Поздравляем!</h5>
                         <p>Вы успешно завершили этот урок и получили {{ lesson.xp_reward }} XP!</p>
                         <a href="/lessons" class="btn btn-success">К следующему уроку →</a>
-                        <a href="/quiz/{{ lesson.id }}" class="btn btn-primary">Пройти тест ещё раз →</a>
-                        {% if lesson.tasks %}
-                            <a href="/task/{{ lesson.tasks[0].id }}" class="btn btn-outline-primary">Практическое задание</a>
-                        {% endif %}
                     </div>
                 {% endif %}
             </div>

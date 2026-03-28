@@ -6,15 +6,22 @@
 <style>
     .code-editor {
         font-family: 'Courier New', monospace;
-        background: #1e1e1e;
-        color: #d4d4d4;
+        background: #1f2937;
+        color: #e5e7eb;
         padding: 15px;
-        border-radius: 10px;
-        border: none;
+        border-radius: 12px;
+        border: 2px solid #e5e7eb;
         width: 100%;
         min-height: 300px;
         font-size: 14px;
         line-height: 1.5;
+        resize: vertical;
+    }
+    
+    .code-editor:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
     }
 </style>
 {% endblock %}
@@ -24,10 +31,10 @@
     <div class="col-lg-8 mx-auto">
         <div class="card">
             <div class="card-body">
-                <h2 class="card-title">💻 {{ task.title }}</h2>
+                <h2 class="card-title" style="color: #1f2937;">💻 {{ task.title }}</h2>
                 <div class="alert alert-info">
-                    <h5>📝 Задание:</h5>
-                    <p>{{ task.description }}</p>
+                    <h5 style="color: #1f2937;">📝 Задание:</h5>
+                    <p style="color: #4b5563;">{{ task.description }}</p>
                 </div>
                 
                 {% if message %}
@@ -38,7 +45,7 @@
                 
                 {% if solved %}
                     <div class="alert alert-success">
-                        <h5>🎉 Отлично!</h5>
+                        <h5 style="color: #1f2937;">🎉 Отлично!</h5>
                         <p>Задание выполнено! +50 XP</p>
                         <a href="/lessons" class="btn btn-success">Продолжить обучение</a>
                     </div>
