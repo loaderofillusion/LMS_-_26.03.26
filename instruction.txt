@@ -1,0 +1,27 @@
+Инструкция по развертыванию CodeLearn
+
+📋 Быстрая установка
+
+1. Клонирование репозитория
+git clone https://github.com/ваш-username/codelearn.git
+cd codelearn
+
+2. Установка Python и зависимостей
+
+Создание виртуального окружения:
+# Windows
+python -m venv venv
+venv\Scripts\activate
+
+# Linux/Mac
+python3 -m venv venv
+source venv/bin/activate
+
+Установка зависимостей:
+pip install -r requirements.txt
+
+3. Запуск приложения
+python main.py
+
+Приложение будет доступно по адресу: http://localhost:5000
+Если оно не откроется, то в консоли python будут ссылки на сайт
