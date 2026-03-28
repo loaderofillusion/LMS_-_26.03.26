@@ -7,35 +7,62 @@
     <div class="col-lg-8 mx-auto">
         <div class="card">
             <div class="card-body">
-                <h2 class="card-title">📝 Проверь свои знания</h2>
-
-                {% if passed %}
-                <form method="POST">
-                    {% for question in questions %}
-                    {% set q_index = loop.index0 %}
-                    <div class="mb-4">
-                        <h5>{{ loop.index }}. {{ question.text }}</h5>
-                        {% set options = question.options.split(',') %}
-                        {% for opt in options %}
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="q_{{ q_index }}" value="{{ loop.index0 }}" required>
-                            <label class="form-check-label">{{ opt.strip() }}</label>
-                        </div>
+                <h2 class="card-title">Проверь свои знания</h2>
+                
+                {% if not lesson_completed %}
+                    <form method="POST" id="quizForm">
+                        {% for question in questions %}
+                            <div class="mb-4">
+                                <h5>{{ loop.index }}. {{ question.text }}</h5>
+                                {% set options = question.options.split(',') %}
+                                {% for opt in options %}
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" 
+                                               name="q_{{ loop.index0 }}" value="{{ loop.index0 }}" 
+                                               id="q{{ loop.index0 }}_{{ loop.index1 }}"
+                                               {% if user_answers and user_answers[loop.parent.loop.index0|string] == loop.index0|string %}checked{% endif %}
+                                               required>
+                                        <label class="form-check-label" for="q{{ loop.index0 }}_{{ loop.index1 }}">
+                                            {{ opt.strip() }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
                         {% endfor %}
-                    </div>
-                    {% endfor %}
-                    <button type="submit" class="btn btn-primary">Проверить ответы</button>
-                </form>
+                        <button type="submit" class="btn btn-primary">Проверить ответы</button>
+                    </form>
                 {% else %}
-                <div class="alert alert-info">
-                    <h5>Ваш результат: {{ score }} из {{ total }}</h5>
-                    {% if score >= total  %}
-                    <p class="mb-0">✅ Поздравляем! Вы успешно прошли тест!</p>
-                    {% else %}
-                    <p class="mb-0">❌ Повторите материал и попробуйте еще раз!</p>
-                    <a href="javascript:history.back()" class="btn btn-primary mt-3">Вернуться к уроку</a>
-                    {% endif %}
-                </div>
+                    <div class="alert alert-success">
+                        <h5>✅ Урок пройден!</h5>
+                        <p>Ваши ответы:</p>
+                        {% for question in questions %}
+                            <div class="mb-3">
+                                <strong>{{ loop.index }}. {{ question.text }}</strong><br>
+                                {% set options = question.options.split(',') %}
+                                {% set user_answer = user_answers[loop.index0|string]|int %}
+                                <span class="{% if user_answer == question.correct_answer %}text-success{% else %}text-danger{% endif %}">
+                                    Ваш ответ: {{ options[user_answer].strip() }}
+                                </span>
+                                {% if user_answer != question.correct_answer %}
+                                    <br><span class="text-muted">Правильный ответ: {{ options[question.correct_answer].strip() }}</span>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        <a href="/lessons" class="btn btn-primary mt-3">К списку уроков</a>
+                    </div>
+                {% endif %}
+                
+                {% if score is defined and not lesson_completed %}
+                    <div class="alert alert-info mt-3">
+                        <h5>Ваш результат: {{ score }} из {{ total }}</h5>
+                        {% if score >= total/2 %}
+                            <p class="mb-0">✅ Поздравляем! Вы успешно прошли тест!</p>
+                            <a href="/lesson/{{ lesson_id }}/complete" class="btn btn-success mt-3">Завершить урок</a>
+                        {% else %}
+                            <p class="mb-0">❌ Попробуйте еще раз и повторите материал!</p>
+                            <button onclick="location.reload()" class="btn btn-primary mt-3">Пройти тест заново</button>
+                        {% endif %}
+                    </div>
                 {% endif %}
             </div>
         </div>

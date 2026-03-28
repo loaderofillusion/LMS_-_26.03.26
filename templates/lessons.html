@@ -20,7 +20,7 @@
                             <h5 class="mb-1">
                                 {{ lesson.order }}. {{ lesson.title }}
                                 {% if lesson.id|string in completed_lessons %}
-                                    <span class="badge bg-success ms-2">Пройдено</span>
+                                    <span class="badge bg-success ms-2">✅ Урок пройден</span>
                                 {% endif %}
                             </h5>
                             <small class="text-muted">+{{ lesson.xp_reward }} XP</small>

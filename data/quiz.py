@@ -25,3 +25,19 @@ class QuizQuestion(SqlAlchemyBase, SerializerMixin):
     order = sqlalchemy.Column(sqlalchemy.Integer, default=0)
 
     quiz = orm.relationship('Quiz')
+
+
+# Добавь в конец файла quiz.py
+
+class UserQuizAnswer(SqlAlchemyBase, SerializerMixin):
+    __tablename__ = 'user_quiz_answers'
+
+    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
+    user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'))
+    quiz_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('quizzes.id'))
+    answers = sqlalchemy.Column(sqlalchemy.Text, default='')  # JSON или CSV
+    completed = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
+    created_at = sqlalchemy.Column(sqlalchemy.DateTime, default=sqlalchemy.func.now())
+
+    user = orm.relationship('User')
+    quiz = orm.relationship('Quiz')

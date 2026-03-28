@@ -7,9 +7,19 @@
     <div class="col-lg-8 mx-auto">
         <div class="card">
             <div class="card-body">
-                <h1 class="card-title" style="color: #1f2937;">{{ lesson.title }}</h1>
-                <div class="badge bg-info mb-3" style="background: #3b82f6 !important;">+{{ lesson.xp_reward }} XP</div>
-                <div class="card-text" style="color: #4b5563; line-height: 1.6;">
+                <h1 class="card-title">{{ lesson.title }}</h1>
+                <div class="badge bg-info mb-3">+{{ lesson.xp_reward }} XP</div>
+                
+                {% if completed %}
+                    <div class="alert alert-success">
+                        <h5>✅ Урок пройден!</h5>
+                        <p>Вы уже завершили этот урок и получили {{ lesson.xp_reward }} XP!</p>
+                        <a href="/quiz/{{ lesson.id }}" class="btn btn-primary">Посмотреть свои ответы</a>
+                        <a href="/lessons" class="btn btn-outline-primary">К списку уроков</a>
+                    </div>
+                {% endif %}
+                
+                <div class="card-text">
                     {{ lesson.content|safe }}
                 </div>
                 
@@ -17,8 +27,8 @@
                 
                 {% if not completed %}
                     <div class="alert alert-info">
-                        <h5 style="color: #1f2937;">📝 После изучения материала:</h5>
-                        <ol style="color: #4b5563;">
+                        <h5>📝 После изучения материала:</h5>
+                        <ol>
                             <li>Пройдите тест для закрепления знаний</li>
                             <li>Выполните практическое задание</li>
                             <li>Получите XP и двигайтесь дальше!</li>
@@ -30,12 +40,6 @@
                         {% if lesson.tasks %}
                             <a href="/task/{{ lesson.tasks[0].id }}" class="btn btn-outline-primary">Практическое задание</a>
                         {% endif %}
-                    </div>
-                {% else %}
-                    <div class="alert alert-success">
-                        <h5 style="color: #1f2937;">🎉 Поздравляем!</h5>
-                        <p>Вы успешно завершили этот урок и получили {{ lesson.xp_reward }} XP!</p>
-                        <a href="/lessons" class="btn btn-success">К следующему уроку →</a>
                     </div>
                 {% endif %}
             </div>

@@ -317,6 +317,25 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    {% block scripts %}{% endblock %}
+    {% block scripts %}
+<script>
+    // Обработка радио кнопок - они уже работают стандартно
+    // Этот код просто для дополнительного удобства
+    document.querySelectorAll('.form-check-input').forEach(radio => {
+        radio.addEventListener('change', function() {
+            // Можно добавить сохранение выбранного ответа в localStorage
+            const name = this.name;
+            const value = this.value;
+            localStorage.setItem(name, value);
+        });
+
+        // Восстановить сохраненные ответы
+        const savedValue = localStorage.getItem(radio.name);
+        if (savedValue && radio.value === savedValue) {
+            radio.checked = true;
+        }
+    });
+</script>
+{% endblock %}
 </body>
 </html>

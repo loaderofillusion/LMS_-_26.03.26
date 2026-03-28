@@ -16,6 +16,8 @@ from forms.login_form import LoginForm
 from forms.user import RegisterForm
 from forms.lesson import LessonForm, TaskForm
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from data.quiz import UserQuizAnswer
+import json
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -321,18 +323,63 @@ def quiz(lesson_id):
     questions = db_sess.query(QuizQuestion).filter(QuizQuestion.quiz_id == quiz_obj.id).order_by(
         QuizQuestion.order).all()
 
+    # Проверяем, проходил ли пользователь этот тест
+    user_answers_record = db_sess.query(UserQuizAnswer).filter(
+        UserQuizAnswer.user_id == current_user.id,
+        UserQuizAnswer.quiz_id == quiz_obj.id
+    ).first()
+
+    # Проверяем, пройден ли урок
+    progress = db_sess.query(UserProgress).filter(UserProgress.user_id == current_user.id).first()
+    lesson_completed_from_progress = False
+    if progress and progress.completed_lessons:
+        lesson_completed_from_progress = str(lesson_id) in progress.completed_lessons.split(',')
+
+    lesson_completed = lesson_completed_from_progress
+    user_answers = {}
+
+    if user_answers_record:
+        if user_answers_record.answers:
+            user_answers = json.loads(user_answers_record.answers)
+        lesson_completed = lesson_completed or user_answers_record.completed
+
     if request.method == 'POST':
         score = 0
+        answers = {}
         for i, question in enumerate(questions):
             answer = request.form.get(f'q_{i}')
-            if answer and int(answer) == question.correct_answer:
-                score += 1
+            if answer:
+                answers[str(i)] = answer
+                if int(answer) == question.correct_answer:
+                    score += 1
+
+        # Сохраняем ответы пользователя
+        if user_answers_record:
+            user_answers_record.answers = json.dumps(answers)
+            user_answers_record.completed = (score >= len(questions) / 2)
+            db_sess.commit()
+        else:
+            user_answers_record = UserQuizAnswer(
+                user_id=current_user.id,
+                quiz_id=quiz_obj.id,
+                answers=json.dumps(answers),
+                completed=(score >= len(questions) / 2)
+            )
+            db_sess.add(user_answers_record)
+            db_sess.commit()
+
+        # Если тест пройден, но урок еще не завершен - показываем кнопку завершения
+        test_passed = (score >= len(questions) / 2)
 
         return render_template("quiz.html", quiz=quiz_obj, questions=questions,
-                               score=score, total=len(questions), passed=False, lesson_id=lesson_id)
+                               score=score, total=len(questions), passed=False,
+                               lesson_id=lesson_id, lesson_completed=False,
+                               user_answers=answers, test_passed=test_passed)
 
-    return render_template("quiz.html", quiz=quiz_obj, questions=questions, passed=True, lesson_id=lesson_id)
-
+    return render_template("quiz.html", quiz=quiz_obj, questions=questions,
+                           passed=True, lesson_id=lesson_id,
+                           lesson_completed=lesson_completed,
+                           user_answers=user_answers)
 
 @app.route('/task/<int:task_id>', methods=['GET', 'POST'])
 @login_required

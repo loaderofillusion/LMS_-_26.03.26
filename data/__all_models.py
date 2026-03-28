@@ -6,3 +6,4 @@ from . import achievement
 from . import user_achievement
 from . import quiz
 from . import task
+from . import user_quiz_answer
