@@ -7,13 +7,13 @@
     <div class="col-lg-8 mx-auto">
         <div class="card">
             <div class="card-body">
-                <h2 class="card-title">📝 Проверь свои знания</h2>
+                <h2 class="card-title">📝 [ ПРОВЕРЬ СВОИ ЗНАНИЯ ]</h2>
 
                 {% if passed %}
                     <form method="POST">
                         {% for question in questions %}
                             <div class="mb-4">
-                                <h5>{{ loop.index }}. {{ question.text }}</h5>
+                                <h5>&gt; {{ loop.index }}. {{ question.text }}</h5>
                                 {% set options = question.options.split(',') %}
                                 {% for opt in options %}
                                     <div class="form-check">
@@ -24,16 +24,16 @@
                                 {% endfor %}
                             </div>
                         {% endfor %}
-                        <button type="submit" class="btn btn-primary">Проверить ответы</button>
+                        <button type="submit" class="btn btn-primary">&gt; ПРОВЕРИТЬ ОТВЕТЫ</button>
                     </form>
                 {% else %}
                     <div class="alert alert-info">
-                        <h5>Ваш результат: {{ score }} из {{ total }}</h5>
+                        <h5>[ ВАШ РЕЗУЛЬТАТ: {{ score }} ИЗ {{ total }} ]</h5>
                         {% if score >= total/2 %}
                             <p class="mb-0">✅ Поздравляем! Вы успешно прошли тест!</p>
                         {% else %}
                             <p class="mb-0">❌ Попробуйте еще раз и повторите материал!</p>
-                            <a href="javascript:history.back()" class="btn btn-primary mt-3">Вернуться к уроку</a>
+                            <a href="javascript:history.back()" class="btn btn-primary mt-3">&gt; ВЕРНУТЬСЯ К УРОКУ</a>
                         {% endif %}
                     </div>
                 {% endif %}
