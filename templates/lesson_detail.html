@@ -10,15 +10,6 @@
                 <h1 class="card-title">{{ lesson.title }}</h1>
                 <div class="badge bg-info mb-3">+{{ lesson.xp_reward }} XP</div>
                 
-                {% if completed %}
-                    <div class="alert alert-success">
-                        <h5>✅ Урок пройден!</h5>
-                        <p>Вы уже завершили этот урок и получили {{ lesson.xp_reward }} XP!</p>
-                        <a href="/quiz/{{ lesson.id }}" class="btn btn-primary">Посмотреть свои ответы</a>
-                        <a href="/lessons" class="btn btn-outline-primary">К списку уроков</a>
-                    </div>
-                {% endif %}
-                
                 <div class="card-text">
                     {{ lesson.content|safe }}
                 </div>
@@ -37,9 +28,16 @@
                     
                     <div class="d-flex gap-2 mt-3">
                         <a href="/quiz/{{ lesson.id }}" class="btn btn-primary">Пройти тест →</a>
-                        {% if lesson.tasks %}
-                            <a href="/task/{{ lesson.tasks[0].id }}" class="btn btn-outline-primary">Практическое задание</a>
+                        {% if task %}
+                            <a href="/task/{{ task.id }}" class="btn btn-outline-primary">Практическое задание</a>
                         {% endif %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-success">
+                        <h5>🎉 Поздравляем!</h5>
+                        <p>Вы успешно завершили этот урок и получили {{ lesson.xp_reward }} XP!</p>
+                        <a href="/lessons" class="btn btn-success">К следующему уроку →</a>
+                        <a href="/quiz/{{ lesson.id }}" class="btn btn-outline-primary mt-2">Посмотреть свои ответы</a>
                     </div>
                 {% endif %}
             </div>

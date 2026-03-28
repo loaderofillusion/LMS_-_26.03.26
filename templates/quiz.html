@@ -8,37 +8,87 @@
         <div class="card">
             <div class="card-body">
                 <h2 class="card-title">📝 Проверь свои знания</h2>
-
-                {% if passed %}
-                <form method="POST">
-                    {% for question in questions %}
-                    {% set q_index = loop.index0 %}
-                    <div class="mb-4">
-                        <h5>{{ loop.index }}. {{ question.text }}</h5>
-                        {% set options = question.options.split(',') %}
-                        {% for opt in options %}
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="q_{{ q_index }}" value="{{ loop.index0 }}" required>
-                            <label class="form-check-label">{{ opt.strip() }}</label>
-                        </div>
-                        {% endfor %}
+                
+                {% if score is defined %}
+                    <!-- Результат теста -->
+                    <div class="alert alert-info">
+                        <h5>Ваш результат: {{ score }} из {{ total }}</h5>
+                        {% if test_passed %}
+                            <p class="mb-0 text-success">✅ Отлично! Все ответы правильные! Вы успешно прошли тест!</p>
+                            
+                            {% if task_id %}
+                                <div class="mt-3">
+                                    <p>Теперь перейдите к практическому заданию:</p>
+                                    <a href="/task/{{ task_id }}" class="btn btn-success">Перейти к заданию →</a>
+                                </div>
+                            {% else %}
+                                <div class="mt-3">
+                                    <a href="/lesson/{{ lesson_id }}/complete" class="btn btn-success">Завершить урок</a>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <p class="mb-0 text-danger">❌ Тест не пройден. Нужно ответить правильно на все вопросы!</p>
+                            <a href="/quiz/{{ lesson_id }}/reset" class="btn btn-primary mt-3">Пройти тест заново</a>
+                        {% endif %}
                     </div>
-                    {% endfor %}
-                    <button type="submit" class="btn btn-primary">Проверить ответы</button>
-                </form>
+                    
+                {% elif lesson_completed %}
+                    <!-- Урок уже пройден -->
+                    <div class="alert alert-success text-center">
+                        <h5>✅ Тест пройден!</h5>
+                        <p class="mb-3">Вы успешно прошли тест для этого урока.</p>
+                        <div class="mt-3">
+                            <a href="/quiz/{{ lesson_id }}/reset" class="btn btn-warning me-2">Пройти тест заново</a>
+                            <a href="/lessons" class="btn btn-primary">К списку уроков</a>
+                        </div>
+                    </div>
+                    
                 {% else %}
-                <div class="alert alert-info">
-                    <h5>Ваш результат: {{ score }} из {{ total }}</h5>
-                    {% if score >= total  %}
-                    <p class="mb-0">✅ Поздравляем! Вы успешно прошли тест!</p>
-                    {% else %}
-                    <p class="mb-0">❌ Повторите материал и попробуйте еще раз!</p>
-                    <a href="javascript:history.back()" class="btn btn-primary mt-3">Вернуться к уроку</a>
-                    {% endif %}
-                </div>
+                    <!-- Форма теста - сбрасываем все радио кнопки -->
+                    <form method="POST" action="/quiz/{{ lesson_id }}" autocomplete="off">
+                        {% for question in questions %}
+                            <div class="mb-4">
+                                <h5>{{ loop.index }}. {{ question.text }}</h5>
+                                {% set options = question.options.split(',') %}
+                                {% set q_index = loop.index0 %}
+                                {% for opt in options %}
+                                    {% set opt_index = loop.index0 %}
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" 
+                                               name="q_{{ q_index }}" value="{{ opt_index }}" 
+                                               id="q{{ lesson_id }}_{{ q_index }}_{{ opt_index }}"
+                                               {% if loop.first %}data-group="{{ q_index }}"{% endif %}
+                                               required>
+                                        <label class="form-check-label" for="q{{ lesson_id }}_{{ q_index }}_{{ opt_index }}">
+                                            {{ opt.strip() }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-primary">Проверить ответы</button>
+                    </form>
                 {% endif %}
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    // Принудительно сбрасываем все radio кнопки при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        var radioButtons = document.querySelectorAll('input[type="radio"]');
+        radioButtons.forEach(function(radio) {
+            radio.checked = false;
+        });
+    });
+    
+    // Также сбрасываем при каждом обновлении страницы (на случай кэша)
+    window.addEventListener('pageshow', function() {
+        var radioButtons = document.querySelectorAll('input[type="radio"]');
+        radioButtons.forEach(function(radio) {
+            radio.checked = false;
+        });
+    });
+</script>
 {% endblock %}

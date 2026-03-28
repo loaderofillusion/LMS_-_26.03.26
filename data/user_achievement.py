@@ -13,5 +13,5 @@ class UserAchievement(SqlAlchemyBase, SerializerMixin):
     achievement_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('achievements.id'))
     earned_at = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
 
-    user = orm.relationship('User')
-    achievement = orm.relationship('Achievement')
+    user = orm.relationship('User', back_populates='achievements')
+    achievement = orm.relationship('Achievement', back_populates='user_achievements')

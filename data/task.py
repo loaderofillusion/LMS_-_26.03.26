@@ -29,5 +29,5 @@ class TaskSolution(SqlAlchemyBase, SerializerMixin):
     solved = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     created_at = sqlalchemy.Column(sqlalchemy.DateTime, default=sqlalchemy.func.now())
 
-    task = orm.relationship('Task')
-    user = orm.relationship('User')
+    task = orm.relationship('Task', back_populates='solutions')
+    user = orm.relationship('User', back_populates='task_solutions')
