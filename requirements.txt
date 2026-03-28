@@ -1,0 +1,10 @@
+alembic
+Flask
+Flask-Login
+Flask-WTF
+SQLAlchemy
+sqlalchemy-serializer
+requests
+
+
+

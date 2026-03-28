@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Профиль - CodeLearn{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <div class="display-1 mb-3">👨‍🎓</div>
+                <h3>&gt; {{ user.name }}</h3>
+                <p class="text-muted">{{ user.email }}</p>
+                <p>Возраст: {{ user.age }} лет</p>
+                <hr>
+                <div class="d-flex justify-content-around">
+                    <div>
+                        <h4 style="text-shadow: 0 0 5px #00ff41;">{{ total_xp }}</h4>
+                        <small>XP</small>
+                    </div>
+                    <div>
+                        <h4>{{ completed_lessons }}/{{ total_lessons }}</h4>
+                        <small>УРОКОВ</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h3>🏆 [ ДОСТИЖЕНИЯ ]</h3>
+                {% if achievements %}
+                    <div class="row">
+                        {% for ua in achievements %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <span class="display-4">{{ ua.achievement.icon }}</span>
+                                        <h5>{{ ua.achievement.name }}</h5>
+                                        <p class="small text-muted">{{ ua.achievement.description }}</p>
+                                        <small class="text-muted">[ ПОЛУЧЕНО: {{ ua.earned_at.strftime('%d.%m.%Y') }} ]</small>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">[ ПОКА НЕТ ДОСТИЖЕНИЙ. ПРОЙДИТЕ УРОКИ, ЧТОБЫ ПОЛУЧИТЬ ИХ! ]</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
