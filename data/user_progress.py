@@ -13,4 +13,4 @@ class UserProgress(SqlAlchemyBase, SerializerMixin):
     completed_lessons = sqlalchemy.Column(sqlalchemy.Text, default='')  # CSV ids
     level = sqlalchemy.Column(sqlalchemy.Integer, default=1)
 
-    user = orm.relationship('User')
+    user = orm.relationship('User', back_populates='progress')

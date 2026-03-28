@@ -12,6 +12,7 @@ class Quiz(SqlAlchemyBase, SerializerMixin):
 
     lesson = orm.relationship('Lesson')
     questions = orm.relationship('QuizQuestion', back_populates='quiz')
+    user_answers = orm.relationship('UserQuizAnswer', back_populates='quiz')
 
 
 class QuizQuestion(SqlAlchemyBase, SerializerMixin):
@@ -27,17 +28,15 @@ class QuizQuestion(SqlAlchemyBase, SerializerMixin):
     quiz = orm.relationship('Quiz')
 
 
-# Добавь в конец файла quiz.py
-
 class UserQuizAnswer(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'user_quiz_answers'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'))
     quiz_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('quizzes.id'))
-    answers = sqlalchemy.Column(sqlalchemy.Text, default='')  # JSON или CSV
+    answers = sqlalchemy.Column(sqlalchemy.Text, default='')  # JSON
     completed = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     created_at = sqlalchemy.Column(sqlalchemy.DateTime, default=sqlalchemy.func.now())
 
-    user = orm.relationship('User')
-    quiz = orm.relationship('Quiz')
+    user = orm.relationship('User', back_populates='quiz_answers')
+    quiz = orm.relationship('Quiz', back_populates='user_answers')

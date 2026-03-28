@@ -1,6 +1,9 @@
 import datetime
 import os
 import hashlib
+import sys
+import io
+from contextlib import redirect_stdout
 from flask import Flask, render_template, redirect, request, abort, make_response, jsonify, session
 from waitress import serve
 from data import db_session
@@ -10,13 +13,12 @@ from data.module import Module
 from data.user_progress import UserProgress
 from data.achievement import Achievement
 from data.user_achievement import UserAchievement
-from data.quiz import Quiz, QuizQuestion
+from data.quiz import Quiz, QuizQuestion, UserQuizAnswer
 from data.task import Task, TaskSolution
 from forms.login_form import LoginForm
 from forms.user import RegisterForm
 from forms.lesson import LessonForm, TaskForm
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from data.quiz import UserQuizAnswer
 import json
 
 app = Flask(__name__)
@@ -104,19 +106,21 @@ def init_educational_data():
          "module_id": module_objects[4].id},
     ]
 
+    lesson_objects = []
     for lesson_data in lessons_data:
         lesson = Lesson(**lesson_data)
         db_sess.add(lesson)
         db_sess.commit()
+        lesson_objects.append(lesson)
 
     # Создаем вопросы для тестов
     quizzes = [
-        {"lesson_id": 1, "questions": [
+        {"lesson_id": lesson_objects[0].id, "questions": [
             {"text": "Что такое программирование?",
              "options": "Процесс создания программ,Изучение компьютеров,Работа с текстом,Игры", "correct": 0},
             {"text": "Какой язык рекомендуется для начинающих?", "options": "C++,Java,Python,JavaScript", "correct": 2},
         ]},
-        {"lesson_id": 2, "questions": [
+        {"lesson_id": lesson_objects[1].id, "questions": [
             {"text": "Как вывести текст в Python?", "options": "print(),output(),echo(),write()", "correct": 0},
             {"text": "Что выведет print('Hello')?", "options": "Hello,'Hello',hello,Ошибка", "correct": 0},
         ]},
@@ -140,16 +144,18 @@ def init_educational_data():
 
     # Создаем задания
     tasks = [
-        {"lesson_id": 2, "title": "Напиши приветствие",
+        {"lesson_id": lesson_objects[1].id, "title": "Напиши приветствие",
          "description": "Напишите программу, которая выводит 'Привет, мир!'",
-         "initial_code": "# Напишите код здесь\n\n", "test_code": "assert 'Привет, мир!' in output",
+         "initial_code": "# Напишите код здесь\n\nprint('Привет, мир!')",
+         "test_code": "assert 'Привет, мир!' in output",
          "language": "python"},
-        {"lesson_id": 4, "title": "Калькулятор", "description": "Создайте переменные a=10 и b=5, выведите их сумму",
-         "initial_code": "a = 10\nb = 5\n\n# Вычислите сумму\n", "test_code": "assert '15' in output",
+        {"lesson_id": lesson_objects[3].id, "title": "Калькулятор",
+         "description": "Создайте переменные a=10 и b=5, выведите их сумму",
+         "initial_code": "a = 10\nb = 5\n\n# Вычислите сумму\nprint(a + b)", "test_code": "assert '15' in output",
          "language": "python"},
-        {"lesson_id": 6, "title": "Проверка возраста",
+        {"lesson_id": lesson_objects[5].id, "title": "Проверка возраста",
          "description": "Напишите программу, которая проверяет, является ли возраст >= 18",
-         "initial_code": "age = 15\n\n# Напишите условие\n",
+         "initial_code": "age = 15\n\n# Напишите условие\nif age >= 18:\n    print('Совершеннолетний')\nelse:\n    print('Несовершеннолетний')",
          "test_code": "assert 'Несовершеннолетний' in output or 'Совершеннолетний' in output", "language": "python"},
     ]
 
@@ -172,6 +178,26 @@ def init_educational_data():
         achievement = Achievement(**ach)
         db_sess.add(achievement)
         db_sess.commit()
+
+
+def check_python_code(code, task_obj):
+    """Безопасная проверка Python кода"""
+    try:
+        # Захватываем вывод
+        f = io.StringIO()
+        with redirect_stdout(f):
+            # Создаем безопасную среду
+            exec_globals = {}
+            exec(code, exec_globals)
+
+        output = f.getvalue()
+
+        # Выполняем тестовый код
+        test_globals = {'output': output}
+        exec(task_obj.test_code, test_globals)
+        return True, output
+    except Exception as e:
+        return False, str(e)
 
 
 @app.route("/")
@@ -307,7 +333,7 @@ def complete_lesson(lesson_id):
         db_sess.commit()
 
         # Проверяем достижения
-
+        check_achievements(current_user.id)
 
     return jsonify({"success": True, "xp": lesson.xp_reward})
 
@@ -353,33 +379,32 @@ def quiz(lesson_id):
                 if int(answer) == question.correct_answer:
                     score += 1
 
+        test_passed = (score >= len(questions) / 2)
+
         # Сохраняем ответы пользователя
         if user_answers_record:
             user_answers_record.answers = json.dumps(answers)
-            user_answers_record.completed = (score >= len(questions) / 2)
+            user_answers_record.completed = test_passed
             db_sess.commit()
         else:
             user_answers_record = UserQuizAnswer(
                 user_id=current_user.id,
                 quiz_id=quiz_obj.id,
                 answers=json.dumps(answers),
-                completed=(score >= len(questions) / 2)
+                completed=test_passed
             )
             db_sess.add(user_answers_record)
             db_sess.commit()
 
-        # Если тест пройден, но урок еще не завершен - показываем кнопку завершения
-        test_passed = (score >= len(questions) / 2)
-
-        return render_template("quiz.html", quiz=quiz_obj, questions=questions,
-                               score=score, total=len(questions), passed=False,
-                               lesson_id=lesson_id, lesson_completed=False,
-                               user_answers=answers, test_passed=test_passed)
+        return render_template("quiz_result.html", quiz=quiz_obj, questions=questions,
+                               score=score, total=len(questions), test_passed=test_passed,
+                               lesson_id=lesson_id, lesson_completed=lesson_completed,
+                               user_answers=answers)
 
     return render_template("quiz.html", quiz=quiz_obj, questions=questions,
-                           passed=True, lesson_id=lesson_id,
-                           lesson_completed=lesson_completed,
+                           lesson_id=lesson_id, lesson_completed=lesson_completed,
                            user_answers=user_answers)
+
 
 @app.route('/task/<int:task_id>', methods=['GET', 'POST'])
 @login_required
@@ -390,41 +415,47 @@ def task(task_id):
         abort(404)
 
     # Проверяем, решена ли задача
-    solved = db_sess.query(TaskSolution).filter(
+    solved_record = db_sess.query(TaskSolution).filter(
         TaskSolution.task_id == task_id,
         TaskSolution.user_id == current_user.id
     ).first()
 
+    solved = solved_record is not None and solved_record.solved
+
     if request.method == 'POST':
         code = request.form.get('code')
-        # Простая проверка кода (в реальном проекте нужен безопасный executor)
+
         if code and task_obj.language == 'python':
-            # Простая валидация
-            if 'print' in code or '=' in code:
-                # Сохраняем решение
-                solution = TaskSolution(
-                    task_id=task_id,
-                    user_id=current_user.id,
-                    code=code,
-                    solved=True
-                )
-                db_sess.add(solution)
+            # Проверяем код
+            is_correct, message = check_python_code(code, task_obj)
 
-                # Начисляем XP
-                progress = db_sess.query(UserProgress).filter(
-                    UserProgress.user_id == current_user.id
-                ).first()
-                if progress:
-                    progress.total_xp += 50  # XP за решение задачи
-                    db_sess.commit()
+            if is_correct:
+                # Сохраняем решение, если еще не решено
+                if not solved:
+                    solution = TaskSolution(
+                        task_id=task_id,
+                        user_id=current_user.id,
+                        code=code,
+                        solved=True
+                    )
+                    db_sess.add(solution)
 
-                check_achievements(current_user.id)
+                    # Начисляем XP
+                    progress = db_sess.query(UserProgress).filter(
+                        UserProgress.user_id == current_user.id
+                    ).first()
+                    if progress:
+                        progress.total_xp += 50  # XP за решение задачи
+                        db_sess.commit()
+
+                    check_achievements(current_user.id)
+                    solved = True
 
                 return render_template("task.html", task=task_obj,
                                        solved=True, message="✅ Задание выполнено! +50 XP")
-
-        return render_template("task.html", task=task_obj,
-                               solved=False, message="❌ Код не прошел проверку. Попробуйте еще раз!")
+            else:
+                return render_template("task.html", task=task_obj,
+                                       solved=False, message=f"❌ Код не прошел проверку: {message}")
 
     return render_template("task.html", task=task_obj, solved=solved)
 
@@ -471,7 +502,24 @@ def check_achievements(user_id):
             continue
 
         # Проверяем условия
+        achieved = False
+
         if achievement.required_xp and progress.total_xp >= achievement.required_xp:
+            achieved = True
+
+        elif achievement.required_lessons and progress.completed_lessons:
+            completed = len(progress.completed_lessons.split(',')) if progress.completed_lessons else 0
+            if completed >= achievement.required_lessons:
+                achieved = True
+
+        elif achievement.required_modules:
+            # Подсчет пройденных модулей
+            if progress.completed_lessons:
+                completed_lessons = progress.completed_lessons.split(',')
+                # Здесь можно добавить логику подсчета модулей
+                pass
+
+        if achieved:
             user_achievement = UserAchievement(
                 user_id=user_id,
                 achievement_id=achievement.id,
@@ -480,18 +528,6 @@ def check_achievements(user_id):
             db_sess.add(user_achievement)
             progress.total_xp += achievement.xp_reward
             db_sess.commit()
-
-        elif achievement.required_lessons and progress.completed_lessons:
-            completed = len(progress.completed_lessons.split(',')) if progress.completed_lessons else 0
-            if completed >= achievement.required_lessons:
-                user_achievement = UserAchievement(
-                    user_id=user_id,
-                    achievement_id=achievement.id,
-                    earned_at=datetime.datetime.now()
-                )
-                db_sess.add(user_achievement)
-                progress.total_xp += achievement.xp_reward
-                db_sess.commit()
 
 
 @app.route('/api/user/progress')
@@ -509,11 +545,14 @@ def api_user_progress():
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
+
 @app.route('/leaderboard')
 @login_required
 def leaderboard():
     db_sess = db_session.create_session()
-    data = db_sess.query(User.name, UserProgress.completed_lessons, UserProgress.total_xp).join(User, User.id == UserProgress.user_id).order_by(UserProgress.total_xp.desc()).all()
+    data = db_sess.query(User.name, UserProgress.completed_lessons, UserProgress.total_xp).join(User,
+                                                                                                User.id == UserProgress.user_id).order_by(
+        UserProgress.total_xp.desc()).all()
     return render_template("leaderboard.html", data=data)
 
 

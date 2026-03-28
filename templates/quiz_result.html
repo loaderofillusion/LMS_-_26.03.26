@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Результат теста - CodeLearn{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">📝 Результаты теста</h2>
+                
+                <div class="alert alert-{{ 'success' if test_passed else 'danger' }}">
+                    <h5>Ваш результат: {{ score }} из {{ total }}</h5>
+                    {% if test_passed %}
+                        <p class="mb-0">✅ Поздравляем! Вы успешно прошли тест!</p>
+                    {% else %}
+                        <p class="mb-0">❌ Вы набрали меньше половины баллов. Повторите материал и попробуйте еще раз!</p>
+                    {% endif %}
+                </div>
+                
+                <h5 class="mt-4">Ваши ответы:</h5>
+                {% for question in questions %}
+                {% set q_index = loop.index0 %}
+                <div class="mb-3 p-3 border rounded">
+                    <p><strong>{{ loop.index }}. {{ question.text }}</strong></p>
+                    {% set options = question.options.split(',') %}
+                    {% set user_answer = user_answers.get(q_index|string) %}
+                    {% set is_correct = user_answer and user_answer|int == question.correct_answer %}
+                    
+                    <div class="ms-3">
+                        <p class="mb-1">Ваш ответ: 
+                            {% if user_answer %}
+                                <span class="badge bg-{{ 'success' if is_correct else 'danger' }}">
+                                    {{ options[user_answer|int].strip() }}
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary">Не отвечен</span>
+                            {% endif %}
+                        </p>
+                        <p class="mb-0 text-muted">Правильный ответ: 
+                            <span class="badge bg-success">{{ options[question.correct_answer].strip() }}</span>
+                        </p>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <div class="mt-4">
+                    {% if test_passed and not lesson_completed %}
+                        <button id="completeLessonBtn" class="btn btn-success btn-lg">✅ Завершить урок и получить +{{ quiz.lesson.xp_reward }} XP</button>
+                    {% else %}
+                        <a href="/lesson/{{ lesson_id }}" class="btn btn-primary">Вернуться к уроку</a>
+                    {% endif %}
+                    <a href="/lessons" class="btn btn-outline-primary ms-2">К списку уроков</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if test_passed and not lesson_completed %}
+{% block scripts %}
+{{ super() }}
+<script>
+    document.getElementById('completeLessonBtn')?.addEventListener('click', function() {
+        fetch('/lesson/{{ lesson_id }}/complete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`Урок завершен! Вы получили ${data.xp} XP!`);
+                window.location.href = '/lessons';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Произошла ошибка при завершении урока');
+        });
+    });
+</script>
+{% endblock %}
+{% endif %}
+{% endblock %}

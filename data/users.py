@@ -20,6 +20,8 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
 
     progress = orm.relationship('UserProgress', back_populates='user', uselist=False)
     achievements = orm.relationship('UserAchievement', back_populates='user')
+    quiz_answers = orm.relationship('UserQuizAnswer', back_populates='user')
+    task_solutions = orm.relationship('TaskSolution', back_populates='user')
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)

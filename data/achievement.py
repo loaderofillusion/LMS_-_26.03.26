@@ -15,3 +15,5 @@ class Achievement(SqlAlchemyBase, SerializerMixin):
     required_xp = sqlalchemy.Column(sqlalchemy.Integer)
     required_lessons = sqlalchemy.Column(sqlalchemy.Integer)
     required_modules = sqlalchemy.Column(sqlalchemy.Integer)
+
+    user_achievements = orm.relationship('UserAchievement', back_populates='achievement')
