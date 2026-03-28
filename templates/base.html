@@ -12,10 +12,10 @@
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
             background: #0a0e0a;
-            background-image:
+            background-image: 
                 linear-gradient(rgba(0, 255, 0, 0.03) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(0, 255, 0, 0.03) 1px, transparent 1px);
             background-size: 30px 30px;
@@ -23,7 +23,7 @@
             font-family: 'Share Tech Mono', 'Space Mono', 'Courier New', monospace;
             color: #00ff41;
         }
-
+        
         /* Анимированная матрица на фоне */
         body::before {
             content: "";
@@ -42,7 +42,7 @@
             );
             z-index: -1;
         }
-
+        
         .navbar {
             background: #0a0e0a !important;
             backdrop-filter: blur(10px);
@@ -50,7 +50,7 @@
             box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
             font-family: 'Share Tech Mono', monospace;
         }
-
+        
         .navbar-brand {
             color: #00ff41 !important;
             font-weight: bold;
@@ -58,25 +58,25 @@
             font-size: 1.5rem;
             letter-spacing: 2px;
         }
-
+        
         .navbar-brand:hover {
             text-shadow: 0 0 20px #00ff41;
             transform: scale(1.05);
             transition: all 0.3s ease;
         }
-
+        
         .nav-link {
             color: #00cc33 !important;
             transition: all 0.3s ease;
             margin: 0 5px;
         }
-
+        
         .nav-link:hover {
             color: #00ff41 !important;
             text-shadow: 0 0 8px #00ff41;
             transform: translateY(-2px);
         }
-
+        
         .card {
             background: #0a0e0a;
             border: 1px solid #00ff41;
@@ -85,27 +85,27 @@
             transition: all 0.3s ease;
             color: #00ff41;
         }
-
+        
         .card:hover {
             transform: translateY(-5px);
             box-shadow: 0 0 35px rgba(0, 255, 65, 0.4);
             border-color: #00ff41;
         }
-
+        
         .card-header {
             background: #0a0e0a;
             border-bottom: 1px solid #00ff41;
             color: #00ff41;
         }
-
+        
         .card-header h3, .card-header p {
             color: #00ff41;
         }
-
+        
         .card-body {
             background: #0a0e0a;
         }
-
+        
         .btn-primary {
             background: transparent;
             border: 2px solid #00ff41;
@@ -117,7 +117,7 @@
             transition: all 0.3s ease;
             box-shadow: 0 0 5px rgba(0, 255, 65, 0.3);
         }
-
+        
         .btn-primary:hover {
             background: #00ff41;
             color: #0a0e0a;
@@ -125,69 +125,69 @@
             box-shadow: 0 0 20px #00ff41;
             transform: scale(1.05);
         }
-
+        
         .btn-outline-primary {
             border: 2px solid #00ff41;
             color: #00ff41;
             background: transparent;
             font-family: 'Share Tech Mono', monospace;
         }
-
+        
         .btn-outline-primary:hover {
             background: #00ff41;
             color: #0a0e0a;
             box-shadow: 0 0 20px #00ff41;
         }
-
+        
         .btn-success {
             background: transparent;
             border: 2px solid #00ff41;
             color: #00ff41;
         }
-
+        
         .btn-success:hover {
             background: #00ff41;
             color: #0a0e0a;
             box-shadow: 0 0 20px #00ff41;
         }
-
+        
         .alert {
             background: #0a0e0a;
             border: 1px solid #00ff41;
             color: #00ff41;
             font-family: monospace;
         }
-
+        
         .alert-info {
             background: #0a0e0a;
             border-color: #00ff41;
         }
-
+        
         .alert-success {
             background: #0a0e0a;
             border-color: #00ff41;
             color: #00ff41;
         }
-
+        
         .alert-danger {
             background: #0a0e0a;
             border-color: #ff3300;
             color: #ff6633;
         }
-
+        
         .progress {
             background: #0a1a0a;
             border: 1px solid #00ff41;
             border-radius: 10px;
             height: 20px;
         }
-
+        
         .progress-bar {
             background: #00ff41;
             box-shadow: 0 0 10px #00ff41;
             transition: width 0.5s ease;
         }
-
+        
         .list-group-item {
             background: #0a0e0a;
             border: 1px solid #00ff41;
@@ -195,86 +195,86 @@
             margin-bottom: 5px;
             border-radius: 8px !important;
         }
-
+        
         .list-group-item:hover {
             background: #0a1a0a;
             box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
         }
-
+        
         .badge {
             font-family: monospace;
         }
-
+        
         .badge.bg-success {
             background: #00ff41 !important;
             color: #0a0e0a;
             box-shadow: 0 0 5px #00ff41;
         }
-
+        
         .badge.bg-info {
             background: transparent !important;
             border: 1px solid #00ff41;
             color: #00ff41;
         }
-
+        
         .form-control {
             background: #0a0e0a;
             border: 1px solid #00ff41;
             color: #00ff41;
             font-family: monospace;
         }
-
+        
         .form-control:focus {
             background: #0a1a0a;
             border-color: #00ff41;
             box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
             color: #00ff41;
         }
-
+        
         .form-label {
             color: #00ff41;
             font-weight: bold;
         }
-
+        
         .form-check-input {
             background-color: #0a0e0a;
             border: 1px solid #00ff41;
         }
-
+        
         .form-check-input:checked {
             background-color: #00ff41;
             border-color: #00ff41;
         }
-
+        
         .form-check-label {
             color: #00ff41;
         }
-
+        
         a {
             color: #00ff41;
             text-decoration: none;
             transition: all 0.3s ease;
         }
-
+        
         a:hover {
             color: #33ff66;
             text-shadow: 0 0 8px #00ff41;
         }
-
+        
         .text-muted {
             color: #33cc33 !important;
         }
-
+        
         hr {
             border-color: #00ff41;
         }
-
+        
         /* Анимация мигающего курсора */
         @keyframes blink {
             0%, 100% { opacity: 1; }
             50% { opacity: 0; }
         }
-
+        
         /* Стиль для кода */
         pre, code {
             background: #0a0e0a;
@@ -282,13 +282,13 @@
             color: #00ff41;
             font-family: monospace;
         }
-
+        
         /* Стиль для завершенных уроков */
         .lesson-completed {
             background: #0a2a0a;
             border-left: 4px solid #00ff41;
         }
-
+        
         /* Стиль для достижений */
         .achievement-badge {
             display: inline-block;
@@ -299,14 +299,14 @@
             margin: 5px;
             transition: all 0.3s ease;
         }
-
+        
         .achievement-badge:hover {
             background: #00ff41;
             color: #0a0e0a;
             box-shadow: 0 0 15px #00ff41;
             transform: scale(1.05);
         }
-
+        
         /* Анимация для карточек */
         @keyframes glow {
             from {
@@ -316,47 +316,47 @@
                 box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
             }
         }
-
+        
         .card {
             animation: glow 2s ease-in-out infinite alternate;
         }
-
+        
         /* Стиль для модальных окон */
         .modal-content {
             background: #0a0e0a;
             border: 2px solid #00ff41;
         }
-
+        
         .modal-header {
             border-bottom-color: #00ff41;
         }
-
+        
         .modal-footer {
             border-top-color: #00ff41;
         }
-
+        
         /* Стиль для выпадающих списков */
         .dropdown-menu {
             background: #0a0e0a;
             border: 1px solid #00ff41;
         }
-
+        
         .dropdown-item {
             color: #00ff41;
         }
-
+        
         .dropdown-item:hover {
             background: #00ff41;
             color: #0a0e0a;
         }
-
+        
         /* Стиль для пагинации */
         .page-link {
             background: #0a0e0a;
             border-color: #00ff41;
             color: #00ff41;
         }
-
+        
         .page-link:hover {
             background: #00ff41;
             color: #0a0e0a;

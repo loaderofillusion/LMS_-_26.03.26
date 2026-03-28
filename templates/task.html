@@ -17,7 +17,7 @@
         line-height: 1.5;
         resize: vertical;
     }
-
+    
     .code-editor:focus {
         outline: none;
         box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
@@ -35,13 +35,13 @@
                     <h5>📝 [ ЗАДАНИЕ ]</h5>
                     <p>{{ task.description }}</p>
                 </div>
-
+                
                 {% if message %}
                     <div class="alert alert-{{ 'success' if '✅' in message else 'danger' }}">
                         &gt; {{ message }}
                     </div>
                 {% endif %}
-
+                
                 {% if solved %}
                     <div class="alert alert-success">
                         <h5>🎉 [ ОТЛИЧНО! ]</h5>

@@ -8,14 +8,14 @@
         <div class="card">
             <div class="card-body">
                 <h2 class="card-title text-center mb-4">📝 [ РЕГИСТРАЦИЯ ]</h2>
-
+                
                 {% if message %}
                     <div class="alert alert-danger">&gt; {{ message }}</div>
                 {% endif %}
-
+                
                 <form action="" method="post">
                     {{ form.hidden_tag() }}
-
+                    
                     <div class="mb-3">
                         {{ form.name.label(class="form-label") }}
                         {{ form.name(class="form-control", placeholder="Введите имя пользователя") }}
@@ -23,7 +23,7 @@
                             <div class="alert alert-danger">{{ error }}</div>
                         {% endfor %}
                     </div>
-
+                    
                     <div class="mb-3">
                         {{ form.email.label(class="form-label") }}
                         {{ form.email(class="form-control", placeholder="example@mail.ru") }}
@@ -31,7 +31,7 @@
                             <div class="alert alert-danger">{{ error }}</div>
                         {% endfor %}
                     </div>
-
+                    
                     <div class="mb-3">
                         {{ form.age.label(class="form-label") }}
                         {{ form.age(class="form-control", placeholder="7-15 лет") }}
@@ -39,7 +39,7 @@
                             <div class="alert alert-danger">{{ error }}</div>
                         {% endfor %}
                     </div>
-
+                    
                     <div class="mb-3">
                         {{ form.password.label(class="form-label") }}
                         {{ form.password(class="form-control", type="password", placeholder="Введите пароль") }}
@@ -47,7 +47,7 @@
                             <div class="alert alert-danger">{{ error }}</div>
                         {% endfor %}
                     </div>
-
+                    
                     <div class="mb-3">
                         {{ form.password_again.label(class="form-label") }}
                         {{ form.password_again(class="form-control", type="password", placeholder="Повторите пароль") }}
@@ -55,17 +55,17 @@
                             <div class="alert alert-danger">{{ error }}</div>
                         {% endfor %}
                     </div>
-
+                    
                     <div class="mb-3">
                         {{ form.about.label(class="form-label") }}
                         {{ form.about(class="form-control", rows=3, placeholder="Расскажите немного о себе") }}
                     </div>
-
+                    
                     <div class="d-grid">
                         {{ form.submit(class="btn btn-primary btn-lg") }}
                     </div>
                 </form>
-
+                
                 <div class="text-center mt-3">
                     <p>[ УЖЕ ЕСТЬ АККАУНТ? <a href="/login">ВОЙДИТЕ</a> ]</p>
                 </div>

@@ -12,9 +12,9 @@
                 <div class="card-text" style="font-size: 1.1rem; line-height: 1.6;">
                     {{ lesson.content|safe }}
                 </div>
-
+                
                 <hr>
-
+                
                 {% if not completed %}
                     <div class="alert alert-info">
                         <h5>📝 [ ПОСЛЕ ИЗУЧЕНИЯ МАТЕРИАЛА ]</h5>
@@ -24,7 +24,7 @@
                             <li>Получите XP и двигайтесь дальше!</li>
                         </ol>
                     </div>
-
+                    
                     <div class="d-flex gap-2 mt-3">
                         <a href="/quiz/{{ lesson.id }}" class="btn btn-primary">&gt; ПРОЙТИ ТЕСТ →</a>
                         {% if lesson.tasks %}
