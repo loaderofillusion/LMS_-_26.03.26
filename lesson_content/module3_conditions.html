@@ -1,0 +1,202 @@
+<h2>Оператор if: принятие решений</h2>
+
+<p>В реальной жизни мы постоянно принимаем решения: «Если идет дождь, я возьму зонт, иначе — не возьму». В программировании для этого используется оператор <code>if</code> (если). Он позволяет выполнять разные блоки кода в зависимости от условий.</p>
+
+<h3>Простой if</h3>
+
+<p>Самый простой оператор <code>if</code> проверяет условие и, если оно истинно (<code>True</code>), выполняет код внутри блока.</p>
+
+<pre><code>age = 18
+
+if age >= 18:
+    print('Вы можете голосовать!')
+    print('И покупать билеты в кино для взрослых')
+
+print('Программа продолжается')</code></pre>
+
+<p>Важные правила:</p>
+<ul>
+    <li>После <code>if</code> ставится условие, затем двоеточие <code>:</code></li>
+    <li>Код, который выполняется при истинном условии, пишется с <strong>отступом</strong> (обычно 4 пробела или Tab)</li>
+    <li>Как только отступ заканчивается, Python понимает, что блок закончился</li>
+</ul>
+
+<h3>Операторы сравнения</h3>
+
+<p>В условиях мы используем операторы сравнения. Они возвращают <code>True</code> или <code>False</code>.</p>
+
+<div class="card mt-3 mb-3">
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr><th>Оператор</th><th>Значение</th><th>Пример</th><th>Результат</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>==</code></td><td>равно</td><td>5 == 5</td><td>True</td></tr>
+                <tr><td><code>!=</code></td><td>не равно</td><td>5 != 3</td><td>True</td></tr>
+                <tr><td><code>&gt;</code></td><td>больше</td><td>10 > 5</td><td>True</td></tr>
+                <tr><td><code>&lt;</code></td><td>меньше</td><td>3 < 7</td><td>True</td></tr>
+                <tr><td><code>&gt;=</code></td><td>больше или равно</td><td>5 >= 5</td><td>True</td></tr>
+                <tr><td><code>&lt;=</code></td><td>меньше или равно</td><td>4 <= 6</td><td>True</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="alert alert-warning">
+    <strong>⚠️ Важно!</strong> Не путайте <code>=</code> (присваивание) и <code>==</code> (сравнение). <code>age = 18</code> — присваивает значение, <code>age == 18</code> — проверяет, равно ли 18.
+</div>
+
+<h2>Операторы else и elif</h2>
+
+<p>Часто нужно предусмотреть, что делать, если условие не выполнилось. Для этого есть <code>else</code> (иначе). А если нужно проверить несколько вариантов — <code>elif</code> (сокращение от else if).</p>
+
+<h3>Конструкция if-else</h3>
+
+<pre><code>temperature = 25
+
+if temperature > 30:
+    print('Очень жарко! Включите кондиционер.')
+else:
+    print('Температура комфортная.')</code></pre>
+
+<h3>Конструкция if-elif-else</h3>
+
+<pre><code>score = 85
+
+if score >= 90:
+    grade = 'Отлично'
+    print('Твой результат:', grade, '⭐')
+elif score >= 70:
+    grade = 'Хорошо'
+    print('Твой результат:', grade, '👍')
+elif score >= 50:
+    grade = 'Удовлетворительно'
+    print('Твой результат:', grade, '😐')
+else:
+    grade = 'Нужно подтянуть знания'
+    print('Твой результат:', grade, '📚')</code></pre>
+
+<p>Важно: <code>elif</code> проверяется только если предыдущие условия были ложны. Как только находится истинное условие, остальные пропускаются.</p>
+
+<h3>Логические операторы</h3>
+
+<p>Иногда нужно проверить несколько условий одновременно. Для этого используются логические операторы:</p>
+
+<ul>
+    <li><code>and</code> — "и" (оба условия должны быть истинны)</li>
+    <li><code>or</code> — "или" (хотя бы одно условие истинно)</li>
+    <li><code>not</code> — "не" (меняет значение на противоположное)</li>
+</ul>
+
+<pre><code>age = 15
+has_parent_permission = True
+
+# Проверяем несколько условий
+if age >= 18 or (age >= 14 and has_parent_permission):
+    print('Можно зарегистрироваться')
+else:
+    print('Нужно разрешение родителей')
+
+# Использование not
+is_weekend = False
+if not is_weekend:
+    print('Сегодня рабочий день')
+
+# Сложное условие
+weather = 'солнечно'
+temperature = 22
+
+if (weather == 'солнечно' or weather == 'облачно') and 18 <= temperature <= 25:
+    print('Идеальный день для прогулки!')</code></pre>
+
+<h3>Проверка на вхождение</h3>
+
+<p>Оператор <code>in</code> позволяет проверить, содержится ли элемент в коллекции:</p>
+
+<pre><code># Проверка символа в строке
+letter = 'а'
+text = 'программирование'
+
+if letter in text:
+    print(f'Буква "{letter}" есть в слове "{text}"')
+
+# Проверка значения в списке
+favorite_color = 'синий'
+colors = ['красный', 'синий', 'зеленый']
+
+if favorite_color in colors:
+    print(f'{favorite_color} есть в списке любимых цветов')</code></pre>
+
+<div class="card mt-3 mb-3">
+    <div class="card-body" style="background: #f8f9fa;">
+        <h5 class="card-title">🎮 Игра "Угадай число"</h5>
+        <p>Пример использования условных операторов:</p>
+        <pre><code>secret_number = 7
+guess = int(input('Угадай число от 1 до 10: '))
+
+if guess == secret_number:
+    print('Поздравляю! Ты угадал! 🎉')
+elif guess > secret_number:
+    print('Загаданное число меньше.')
+else:
+    print('Загаданное число больше.')</code></pre>
+    </div>
+</div>
+
+<h3>Вложенные условия</h3>
+
+<p>Условия могут быть вложенными — одно условие внутри другого.</p>
+
+<pre><code>has_ticket = True
+has_passport = False
+age = 16
+
+if has_ticket:
+    print('У вас есть билет')
+    if has_passport:
+        print('Паспорт есть, можно проходить')
+    else:
+        print('Нет паспорта! Вход запрещен')
+else:
+    print('Сначала купите билет')</code></pre>
+
+<h3>Тернарный оператор</h3>
+
+<p>Для простых условий можно использовать сокращенную запись:</p>
+
+<pre><code># Обычная запись
+age = 17
+if age >= 18:
+    status = 'взрослый'
+else:
+    status = 'ребенок'
+
+# Тернарный оператор (условие? если True : если False)
+status = 'взрослый' if age >= 18 else 'ребенок'
+print(f'Статус: {status}')</code></pre>
+
+<h3>Практические примеры</h3>
+
+<pre><code># Калькулятор скидок
+total_price = 1500
+if total_price > 1000:
+    discount = 0.1
+    final_price = total_price * (1 - discount)
+    print(f'Скидка 10%! Итоговая сумма: {final_price} руб.')
+else:
+    print(f'Сумма к оплате: {total_price} руб.')
+
+# Определение времени года
+month = 6
+if month in [12, 1, 2]:
+    season = 'зима'
+elif month in [3, 4, 5]:
+    season = 'весна'
+elif month in [6, 7, 8]:
+    season = 'лето'
+else:
+    season = 'осень'
+print(f'{month} месяц — это {season}')</code></pre>
+
+<p>Теперь вы умеете заставлять программу принимать решения! Это очень важный навык для создания сложных программ. Переходите к тесту, чтобы закрепить материал.</p>

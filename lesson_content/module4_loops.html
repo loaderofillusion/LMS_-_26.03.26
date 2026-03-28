@@ -1,0 +1,209 @@
+<h2>Циклы: повторение действий</h2>
+
+<p>Представьте, что вам нужно 100 раз написать «Я люблю программировать». Писать это вручную очень скучно! В программировании для повторяющихся действий есть циклы. Они позволяют выполнять один и тот же блок кода много раз.</p>
+
+<h2>Цикл while</h2>
+
+<p>Цикл <code>while</code> (пока) выполняет код, пока условие истинно. Как только условие становится ложным, цикл прекращается.</p>
+
+<pre><code># Считаем от 1 до 5
+count = 1
+while count <= 5:
+    print(f'Счет: {count}')
+    count = count + 1  # увеличиваем счетчик
+print('Цикл закончен!')</code></pre>
+
+<p>Важные моменты:</p>
+<ul>
+    <li>Не забудьте изменить условие внутри цикла, иначе цикл будет бесконечным!</li>
+    <li>Блок кода внутри цикла выделяется отступами</li>
+</ul>
+
+<h3>Бесконечный цикл и его остановка</h3>
+
+<p>Если условие всегда истинно, цикл будет выполняться вечно. Чтобы остановить его, используют оператор <code>break</code>.</p>
+
+<pre><code># Бесконечный цикл с break
+while True:
+    answer = input('Введите "выход" чтобы остановиться: ')
+    if answer == 'выход':
+        print('До свидания!')
+        break
+    print(f'Вы ввели: {answer}')</code></pre>
+
+<p>Оператор <code>continue</code> пропускает остаток текущей итерации и переходит к следующей:</p>
+
+<pre><code># Печатаем только четные числа
+number = 0
+while number < 10:
+    number += 1
+    if number % 2 != 0:  # если число нечетное
+        continue          # пропускаем печать
+    print(f'{number} - четное число')</code></pre>
+
+<div class="card mt-3 mb-3">
+    <div class="card-body" style="background: #f8f9fa;">
+        <h5 class="card-title">⚠️ Осторожно с бесконечными циклами!</h5>
+        <p>Бесконечный цикл без <code>break</code> заставит программу работать вечно. Если это случилось — нажмите Ctrl+C в терминале, чтобы остановить программу.</p>
+    </div>
+</div>
+
+<h2>Цикл for</h2>
+
+<p>Цикл <code>for</code> используется для перебора элементов в коллекции (списке, строке, диапазоне). Он более удобен, когда нужно пройти по всем элементам последовательности.</p>
+
+<h3>Перебор строки</h3>
+
+<pre><code>word = 'Python'
+for letter in word:
+    print(f'Буква: {letter}')</code></pre>
+
+<h3>Функция range()</h3>
+
+<p><code>range()</code> создает последовательность чисел. Она очень полезна в циклах <code>for</code>.</p>
+
+<pre><code># range(stop) — от 0 до stop-1
+for i in range(5):
+    print(i)  # 0, 1, 2, 3, 4
+
+# range(start, stop) — от start до stop-1
+for i in range(2, 7):
+    print(i)  # 2, 3, 4, 5, 6
+
+# range(start, stop, step) — с шагом
+for i in range(0, 10, 2):
+    print(i)  # 0, 2, 4, 6, 8
+
+# Обратный порядок
+for i in range(10, 0, -1):
+    print(i)  # 10, 9, 8, ..., 1</code></pre>
+
+<h3>Перебор списка</h3>
+
+<pre><code>fruits = ['яблоко', 'банан', 'апельсин']
+for fruit in fruits:
+    print(f'Я люблю {fruit}')</code></pre>
+
+<h3>Перебор с индексом</h3>
+
+<p>Если нужен и индекс элемента, и само значение, используйте <code>enumerate()</code>:</p>
+
+<pre><code>fruits = ['яблоко', 'банан', 'апельсин']
+for index, fruit in enumerate(fruits):
+    print(f'{index + 1}. {fruit}')</code></pre>
+
+<h3>Вложенные циклы</h3>
+
+<p>Циклы можно вкладывать друг в друга. Внутренний цикл выполняется полностью на каждой итерации внешнего цикла.</p>
+
+<pre><code># Таблица умножения
+for i in range(1, 4):
+    for j in range(1, 4):
+        print(f'{i} * {j} = {i * j}')
+    print('---')  # разделитель после каждой строки</code></pre>
+
+<h3>Генераторы списков</h3>
+
+<p>Это краткий способ создания списков с помощью цикла:</p>
+
+<pre><code># Обычный способ
+squares = []
+for x in range(1, 6):
+    squares.append(x ** 2)
+print(squares)  # [1, 4, 9, 16, 25]
+
+# Генератор списка
+squares = [x ** 2 for x in range(1, 6)]
+print(squares)  # [1, 4, 9, 16, 25]
+
+# С условием
+even_squares = [x ** 2 for x in range(1, 11) if x % 2 == 0]
+print(even_squares)  # [4, 16, 36, 64, 100]</code></pre>
+
+<div class="card mt-3 mb-3">
+    <div class="card-body" style="background: #f8f9fa;">
+        <h5 class="card-title">🎯 Когда какой цикл использовать?</h5>
+        <ul>
+            <li><strong>while</strong> — когда неизвестно, сколько раз нужно повторять (пока не наступит условие)</li>
+            <li><strong>for</strong> — когда нужно пройти по всем элементам последовательности или известно количество повторений</li>
+        </ul>
+    </div>
+</div>
+
+<h3>Практические примеры</h3>
+
+<pre><code># Пример 1: Сумма чисел
+numbers = [1, 2, 3, 4, 5]
+total = 0
+for num in numbers:
+    total += num
+print(f'Сумма: {total}')  # 15
+
+# Пример 2: Поиск максимального числа
+numbers = [23, 45, 12, 67, 34]
+max_number = numbers[0]
+for num in numbers:
+    if num > max_number:
+        max_number = num
+print(f'Максимальное число: {max_number}')
+
+# Пример 3: Игра "Угадай число" с ограничением попыток
+import random
+
+secret = random.randint(1, 20)
+attempts = 5
+
+for attempt in range(attempts):
+    guess = int(input(f'Попытка {attempt + 1}/{attempts}. Угадай число от 1 до 20: '))
+
+    if guess == secret:
+        print(f'Поздравляю! Ты угадал за {attempt + 1} попыток! 🎉')
+        break
+    elif guess < secret:
+        print('Загаданное число больше')
+    else:
+        print('Загаданное число меньше')
+else:
+    # Выполняется, если цикл завершился без break
+    print(f'Попытки закончились. Было загадано число {secret}')
+
+# Пример 4: Рисуем фигуры
+size = 5
+# Прямоугольник
+for i in range(size):
+    print('*' * size)
+
+print()  # пустая строка
+
+# Треугольник
+for i in range(1, size + 1):
+    print('*' * i)
+
+# Пример 5: Фибоначчи
+a, b = 0, 1
+count = 0
+while count < 10:
+    print(a, end=' ')
+    a, b = b, a + b
+    count += 1
+# Вывод: 0 1 1 2 3 5 8 13 21 34</code></pre>
+
+<h3>Полезные функции для работы с циклами</h3>
+
+<pre><code># zip() — объединяет несколько последовательностей
+names = ['Анна', 'Петр', 'Мария']
+ages = [10, 12, 11]
+
+for name, age in zip(names, ages):
+    print(f'{name}, возраст: {age}')
+
+# sorted() — сортирует последовательность
+numbers = [3, 1, 4, 1, 5, 9]
+for num in sorted(numbers):
+    print(num, end=' ')  # 1 1 3 4 5 9
+
+# reversed() — обратный порядок
+for num in reversed(numbers):
+    print(num, end=' ')  # 9 5 1 4 1 3</code></pre>
+
+<p>Циклы — мощный инструмент, который помогает автоматизировать повторяющиеся действия. Попробуйте написать свои циклы для разных задач!</p>

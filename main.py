@@ -36,21 +36,49 @@ def load_user(user_id):
     return db_sess.get(User, user_id)
 
 
+def read_lesson_content(filename):
+    """Читает содержимое урока из файла"""
+    # Пробуем разные пути к файлу
+    possible_paths = [
+        f"lesson_content/{filename}",
+        f"lesson_content/{filename}",
+        filename,
+        f"data/lesson_content/{filename}"
+    ]
+
+    for path in possible_paths:
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                return f.read()
+        except FileNotFoundError:
+            continue
+
+    # Если файл не найден, возвращаем заглушку
+    return f"""
+    <h2>Содержимое урока временно недоступно</h2>
+    <p>Файл {filename} не найден. Пожалуйста, проверьте наличие файла в папке lesson_content/</p>
+    """
+
+
 # Инициализация данных для образовательной платформы
 def init_educational_data():
     db_sess = db_session.create_session()
 
     # Проверяем, есть ли уже уроки
     if db_sess.query(Lesson).first():
+        print("Уроки уже существуют, пропускаем инициализацию")
         return
 
     # Создаем модули и уроки по программированию
     modules = [
-        {"name": "Основы программирования", "order": 1, "description": "Введение в мир программирования"},
-        {"name": "Переменные и типы данных", "order": 2, "description": "Изучаем переменные и их типы"},
-        {"name": "Условные операторы", "order": 3, "description": "Как заставить программу принимать решения"},
-        {"name": "Циклы", "order": 4, "description": "Повторяем действия с помощью циклов"},
-        {"name": "Функции", "order": 5, "description": "Создаем собственные функции"},
+        {"name": "Основы программирования", "order": 1,
+         "description": "Введение в мир программирования. Узнаем, что такое программирование и напишем первую программу."},
+        {"name": "Переменные и типы данных", "order": 2,
+         "description": "Изучаем переменные и их типы. Числа, строки и логические значения."},
+        {"name": "Условные операторы", "order": 3,
+         "description": "Как заставить программу принимать решения. if, else, elif."},
+        {"name": "Циклы", "order": 4, "description": "Повторяем действия с помощью циклов while и for."},
+        {"name": "Функции", "order": 5, "description": "Создаем собственные функции и используем их повторно."},
     ]
 
     module_objects = []
@@ -61,75 +89,145 @@ def init_educational_data():
             order=mod["order"]
         )
         db_sess.add(module)
-        db_sess.commit()
+        db_sess.flush()  # Получаем ID без коммита
         module_objects.append(module)
 
-    # Уроки для каждого модуля
+    db_sess.commit()
+
+    # Уроки для каждого модуля (с указанием файлов с содержимым)
     lessons_data = [
         # Модуль 1: Основы программирования
         {"title": "Что такое программирование?",
-         "content": "Программирование - это процесс создания компьютерных программ. Язык Python - отличный выбор для начинающих!",
+         "content_file": "module1_basics.html",
          "order": 1, "xp_reward": 50, "module_id": module_objects[0].id},
         {"title": "Первая программа",
-         "content": "Напишем программу, которая выводит 'Hello, World!'. Используйте команду print()", "order": 2,
-         "xp_reward": 50, "module_id": module_objects[0].id},
+         "content_file": "module1_basics.html",
+         "order": 2, "xp_reward": 50, "module_id": module_objects[0].id},
 
         # Модуль 2: Переменные и типы данных
         {"title": "Что такое переменные?",
-         "content": "Переменные - это контейнеры для хранения данных. Пример: name = 'Анна'", "order": 1,
-         "xp_reward": 75, "module_id": module_objects[1].id},
+         "content_file": "module2_variables.html",
+         "order": 1, "xp_reward": 75, "module_id": module_objects[1].id},
         {"title": "Числовые типы данных",
-         "content": "int (целые числа) и float (дробные числа). Пример: age = 10, price = 99.99", "order": 2,
-         "xp_reward": 75, "module_id": module_objects[1].id},
+         "content_file": "module2_variables.html",
+         "order": 2, "xp_reward": 75, "module_id": module_objects[1].id},
         {"title": "Строки и булевы значения",
-         "content": "str (текст) и bool (True/False). Пример: name = 'Вася', is_student = True", "order": 3,
-         "xp_reward": 75, "module_id": module_objects[1].id},
+         "content_file": "module2_variables.html",
+         "order": 3, "xp_reward": 75, "module_id": module_objects[1].id},
 
         # Модуль 3: Условные операторы
-        {"title": "Оператор if", "content": "if позволяет выполнять код только при определенном условии", "order": 1,
-         "xp_reward": 100, "module_id": module_objects[2].id},
+        {"title": "Оператор if",
+         "content_file": "module3_conditions.html",
+         "order": 1, "xp_reward": 100, "module_id": module_objects[2].id},
         {"title": "Операторы else и elif",
-         "content": "else выполняется, если условие ложно. elif позволяет проверить несколько условий", "order": 2,
-         "xp_reward": 100, "module_id": module_objects[2].id},
+         "content_file": "module3_conditions.html",
+         "order": 2, "xp_reward": 100, "module_id": module_objects[2].id},
 
         # Модуль 4: Циклы
-        {"title": "Цикл while", "content": "while повторяет код пока условие истинно", "order": 1, "xp_reward": 100,
-         "module_id": module_objects[3].id},
-        {"title": "Цикл for", "content": "for используется для перебора элементов", "order": 2, "xp_reward": 100,
-         "module_id": module_objects[3].id},
+        {"title": "Цикл while",
+         "content_file": "module4_loops.html",
+         "order": 1, "xp_reward": 100, "module_id": module_objects[3].id},
+        {"title": "Цикл for",
+         "content_file": "module4_loops.html",
+         "order": 2, "xp_reward": 100, "module_id": module_objects[3].id},
 
         # Модуль 5: Функции
-        {"title": "Создание функций", "content": "Функции - это блоки кода, которые можно вызывать многократно",
+        {"title": "Создание функций",
+         "content_file": "module5_functions.html",
          "order": 1, "xp_reward": 125, "module_id": module_objects[4].id},
         {"title": "Параметры и возврат значений",
-         "content": "Функции могут принимать параметры и возвращать результаты", "order": 2, "xp_reward": 125,
-         "module_id": module_objects[4].id},
+         "content_file": "module5_functions.html",
+         "order": 2, "xp_reward": 125, "module_id": module_objects[4].id},
     ]
 
     lesson_objects = []
     for lesson_data in lessons_data:
-        lesson = Lesson(**lesson_data)
+        # Извлекаем имя файла и удаляем его из словаря
+        content_file = lesson_data.pop("content_file")
+
+        # Читаем содержимое из файла
+        content = read_lesson_content(content_file)
+
+        # Создаем урок
+        lesson = Lesson(content=content, **lesson_data)
         db_sess.add(lesson)
-        db_sess.commit()
+        db_sess.flush()
         lesson_objects.append(lesson)
+
+    db_sess.commit()
+    print(f"Создано {len(lesson_objects)} уроков")
 
     # Создаем вопросы для тестов
     quizzes = [
         {"lesson_id": lesson_objects[0].id, "questions": [
             {"text": "Что такое программирование?",
              "options": "Процесс создания программ,Изучение компьютеров,Работа с текстом,Игры", "correct": 0},
-            {"text": "Какой язык рекомендуется для начинающих?", "options": "C++,Java,Python,JavaScript", "correct": 2},
+            {"text": "Какой язык рекомендуется для начинающих?",
+             "options": "C++,Java,Python,JavaScript", "correct": 2},
         ]},
         {"lesson_id": lesson_objects[1].id, "questions": [
-            {"text": "Как вывести текст в Python?", "options": "print(),output(),echo(),write()", "correct": 0},
-            {"text": "Что выведет print('Hello')?", "options": "Hello,'Hello',hello,Ошибка", "correct": 0},
+            {"text": "Как вывести текст в Python?",
+             "options": "print(),output(),echo(),write()", "correct": 0},
+            {"text": "Что выведет print('Hello')?",
+             "options": "Hello,'Hello',hello,Ошибка", "correct": 0},
+        ]},
+        {"lesson_id": lesson_objects[2].id, "questions": [
+            {"text": "Как создать переменную в Python?",
+             "options": "var x = 5,x = 5,let x = 5,int x = 5", "correct": 1},
+            {"text": "Какой тип данных у числа 3.14?",
+             "options": "int,float,str,bool", "correct": 1},
+        ]},
+        {"lesson_id": lesson_objects[3].id, "questions": [
+            {"text": "Что выведет print(10 // 3)?",
+             "options": "3.333,3,4,Ошибка", "correct": 1},
+            {"text": "Как объединить две строки?",
+             "options": "str1 + str2,str1 & str2,str1.append(str2),str1.join(str2)", "correct": 0},
+        ]},
+        {"lesson_id": lesson_objects[4].id, "questions": [
+            {"text": "Какой оператор проверяет равенство?",
+             "options": "=,==,!=,===", "correct": 1},
+            {"text": "Что делает оператор and?",
+             "options": "Сложение,Истина если оба истинны,Истина если хотя бы один истинен,Отрицание", "correct": 1},
+        ]},
+        {"lesson_id": lesson_objects[5].id, "questions": [
+            {"text": "Что выведет if 5 > 3: print('Да')?",
+             "options": "Да,Ничего,Ошибка,False", "correct": 0},
+            {"text": "Как проверить, что число x от 10 до 20?",
+             "options": "10 < x < 20,x > 10 and x < 20,оба варианта,ни один", "correct": 2},
+        ]},
+        {"lesson_id": lesson_objects[6].id, "questions": [
+            {"text": "Какой цикл используется когда известно количество повторений?",
+             "options": "while,for,do-while,repeat", "correct": 1},
+            {"text": "Что делает break в цикле?",
+             "options": "Пропускает итерацию,Завершает цикл,Начинает цикл заново,Ничего", "correct": 1},
+        ]},
+        {"lesson_id": lesson_objects[7].id, "questions": [
+            {"text": "Что выведет range(5)?",
+             "options": "0,1,2,3,4,1,2,3,4,5,0,1,2,3,4,5,1,2,3,4", "correct": 0},
+            {"text": "Как перебрать элементы списка с индексами?",
+             "options": "for i in list,for i in range(list),for i,item in enumerate(list),for item in list",
+             "correct": 2},
+        ]},
+        {"lesson_id": lesson_objects[8].id, "questions": [
+            {"text": "Какое ключевое слово используется для создания функции?",
+             "options": "function,def,func,define", "correct": 1},
+            {"text": "Что делает return?",
+             "options": "Выводит значение,Возвращает значение из функции,Завершает программу,Создает переменную",
+             "correct": 1},
+        ]},
+        {"lesson_id": lesson_objects[9].id, "questions": [
+            {"text": "Что такое параметры функции?",
+             "options": "Данные которые функция возвращает,Данные которые функция получает,Имя функции,Тип функции",
+             "correct": 1},
+            {"text": "Что выведет print(greet()) если greet(name='Гость')?",
+             "options": "Привет, ,Привет, Гость,Ошибка,None", "correct": 1},
         ]},
     ]
 
     for quiz_data in quizzes:
         quiz = Quiz(lesson_id=quiz_data["lesson_id"])
         db_sess.add(quiz)
-        db_sess.commit()
+        db_sess.flush()
 
         for i, q in enumerate(quiz_data["questions"]):
             question = QuizQuestion(
@@ -140,7 +238,11 @@ def init_educational_data():
                 order=i + 1
             )
             db_sess.add(question)
-            db_sess.commit()
+
+        db_sess.flush()
+
+    db_sess.commit()
+    print(f"Создано {len(quizzes)} тестов")
 
     # Создаем задания
     tasks = [
@@ -151,18 +253,32 @@ def init_educational_data():
          "language": "python"},
         {"lesson_id": lesson_objects[3].id, "title": "Калькулятор",
          "description": "Создайте переменные a=10 и b=5, выведите их сумму",
-         "initial_code": "a = 10\nb = 5\n\n# Вычислите сумму\nprint(a + b)", "test_code": "assert '15' in output",
+         "initial_code": "a = 10\nb = 5\n\n# Вычислите сумму\nprint(a + b)",
+         "test_code": "assert '15' in output",
          "language": "python"},
         {"lesson_id": lesson_objects[5].id, "title": "Проверка возраста",
          "description": "Напишите программу, которая проверяет, является ли возраст >= 18",
          "initial_code": "age = 15\n\n# Напишите условие\nif age >= 18:\n    print('Совершеннолетний')\nelse:\n    print('Несовершеннолетний')",
-         "test_code": "assert 'Несовершеннолетний' in output or 'Совершеннолетний' in output", "language": "python"},
+         "test_code": "assert 'Несовершеннолетний' in output or 'Совершеннолетний' in output",
+         "language": "python"},
+        {"lesson_id": lesson_objects[7].id, "title": "Сумма чисел",
+         "description": "Напишите программу, которая считает сумму чисел от 1 до 10",
+         "initial_code": "# Напишите цикл для подсчета суммы\nsumma = 0\nfor i in range(1, 11):\n    summa += i\nprint(summa)",
+         "test_code": "assert '55' in output",
+         "language": "python"},
+        {"lesson_id": lesson_objects[9].id, "title": "Функция приветствия",
+         "description": "Создайте функцию greet(name), которая выводит 'Привет, [имя]!'",
+         "initial_code": "def greet(name):\n    # Напишите код здесь\n    print(f'Привет, {name}!')\n\ngreet('Анна')",
+         "test_code": "assert 'Привет, Анна' in output",
+         "language": "python"},
     ]
 
     for task_data in tasks:
         task = Task(**task_data)
         db_sess.add(task)
-        db_sess.commit()
+
+    db_sess.commit()
+    print(f"Создано {len(tasks)} заданий")
 
     # Создаем достижения
     achievements = [
@@ -172,12 +288,22 @@ def init_educational_data():
         {"name": "Мастер переменных", "description": "Завершите модуль 'Переменные и типы данных'", "icon": "🔤",
          "xp_reward": 150, "required_modules": 2},
         {"name": "Программист", "description": "Наберите 500 XP", "icon": "💻", "xp_reward": 200, "required_xp": 500},
+        {"name": "Мастер условий", "description": "Завершите модуль 'Условные операторы'", "icon": "🤔",
+         "xp_reward": 150, "required_modules": 3},
+        {"name": "Король циклов", "description": "Завершите модуль 'Циклы'", "icon": "🔄",
+         "xp_reward": 150, "required_modules": 4},
+        {"name": "Гуру функций", "description": "Завершите модуль 'Функции'", "icon": "🎯",
+         "xp_reward": 150, "required_modules": 5},
+        {"name": "Эксперт", "description": "Наберите 1000 XP", "icon": "🏆", "xp_reward": 300, "required_xp": 1000},
     ]
 
     for ach in achievements:
         achievement = Achievement(**ach)
         db_sess.add(achievement)
-        db_sess.commit()
+
+    db_sess.commit()
+    print(f"Создано {len(achievements)} достижений")
+    print("🎉 Инициализация данных завершена!")
 
 
 def check_python_code(code, task_obj):
@@ -516,8 +642,19 @@ def check_achievements(user_id):
             # Подсчет пройденных модулей
             if progress.completed_lessons:
                 completed_lessons = progress.completed_lessons.split(',')
-                # Здесь можно добавить логику подсчета модулей
-                pass
+                # Получаем все уроки
+                all_lessons = db_sess.query(Lesson).all()
+                lesson_to_module = {lesson.id: lesson.module_id for lesson in all_lessons}
+
+                # Считаем пройденные модули
+                completed_modules = set()
+                for lesson_id_str in completed_lessons:
+                    lesson_id = int(lesson_id_str)
+                    if lesson_id in lesson_to_module:
+                        completed_modules.add(lesson_to_module[lesson_id])
+
+                if len(completed_modules) >= achievement.required_modules:
+                    achieved = True
 
         if achieved:
             user_achievement = UserAchievement(
@@ -557,6 +694,17 @@ def leaderboard():
 
 
 if __name__ == '__main__':
+    # Создаем папку lesson_content если её нет
+    if not os.path.exists("lesson_content"):
+        os.makedirs("lesson_content")
+        print("📁 Создана папка lesson_content/")
+        print("⚠️ Не забудьте поместить файлы с содержимым уроков в эту папку!")
+        print("   - module1_basics.html")
+        print("   - module2_variables.html")
+        print("   - module3_conditions.html")
+        print("   - module4_loops.html")
+        print("   - module5_functions.html")
+
     db_session.global_init("db/educational.db")
     init_educational_data()
 

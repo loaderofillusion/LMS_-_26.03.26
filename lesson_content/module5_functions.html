@@ -1,0 +1,277 @@
+<h2>Создание функций</h2>
+
+<p>Функции — это «кирпичики» программ. Они позволяют объединить несколько команд в один блок, который можно использовать многократно. Представьте, что вы пишете рецепт. Вместо того чтобы каждый раз перечислять все шаги приготовления, вы просто говорите «приготовь пиццу» и знаете, что это означает. Функции работают так же!</p>
+
+<h3>Зачем нужны функции?</h3>
+
+<ul>
+    <li><strong>Повторное использование кода</strong> — написали один раз, используете много раз</li>
+    <li><strong>Упрощение кода</strong> — сложные задачи разбиваются на простые</li>
+    <li><strong>Легкость чтения</strong> — хорошее имя функции объясняет, что она делает</li>
+    <li><strong>Меньше ошибок</strong> — исправляя код в одном месте, вы исправляете его везде</li>
+</ul>
+
+<h3>Создание простой функции</h3>
+
+<p>Функция создается с помощью ключевого слова <code>def</code> (от define — определить).</p>
+
+<pre><code>def say_hello():
+    """Функция приветствия"""
+    print('Привет!')
+    print('Добро пожаловать в мир Python!')
+
+# Вызов функции
+say_hello()
+say_hello()  # Можно вызывать много раз</code></pre>
+
+<p>Важные правила:</p>
+<ul>
+    <li>Имя функции должно быть понятным и описывать ее действие</li>
+    <li>После имени ставятся круглые скобки <code>()</code> и двоеточие <code>:</code></li>
+    <li>Тело функции выделяется отступом</li>
+    <li>Документация (строки в тройных кавычках) объясняет, что делает функция</li>
+</ul>
+
+<h2>Параметры и возврат значений</h2>
+
+<h3>Параметры функции</h3>
+
+<p>Параметры — это данные, которые функция получает для работы. Они указываются в круглых скобках.</p>
+
+<pre><code>def greet(name):
+    """Приветствует пользователя по имени"""
+    print(f'Привет, {name}!')
+
+greet('Анна')  # Привет, Анна!
+greet('Петр')  # Привет, Петр!
+
+def add(a, b):
+    """Складывает два числа"""
+    result = a + b
+    print(f'{a} + {b} = {result}')
+
+add(5, 3)  # 5 + 3 = 8</code></pre>
+
+<h3>Параметры по умолчанию</h3>
+
+<p>Можно задать значения по умолчанию. Если аргумент не передан, используется значение по умолчанию.</p>
+
+<pre><code>def greet(name='гость'):
+    print(f'Привет, {name}!')
+
+greet('Анна')  # Привет, Анна!
+greet()        # Привет, гость!
+
+def multiply(a, b=2):
+    return a * b
+
+print(multiply(5))    # 10
+print(multiply(5, 3)) # 15</code></pre>
+
+<h3>Возврат значений (return)</h3>
+
+<p>Функция может не только выполнять действия, но и возвращать результат с помощью <code>return</code>. После <code>return</code> функция завершает работу.</p>
+
+<pre><code>def add(a, b):
+    return a + b
+
+result = add(5, 3)
+print(result)  # 8
+
+def get_grade(score):
+    if score >= 90:
+        return 'Отлично'
+    elif score >= 70:
+        return 'Хорошо'
+    elif score >= 50:
+        return 'Удовлетворительно'
+    else:
+        return 'Неудовлетворительно'
+
+grade = get_grade(85)
+print(grade)  # Хорошо</code></pre>
+
+<div class="alert alert-info">
+    <strong>💡 Важно!</strong> Если в функции нет <code>return</code>, она возвращает <code>None</code> (специальное значение «ничего»).
+</div>
+
+<h3>Несколько возвращаемых значений</h3>
+
+<p>Функция может возвращать несколько значений — они упаковываются в кортеж.</p>
+
+<pre><code>def get_min_max(numbers):
+    return min(numbers), max(numbers)
+
+min_val, max_val = get_min_max([3, 1, 8, 2, 5])
+print(f'Минимум: {min_val}, Максимум: {max_val}')
+# Минимум: 1, Максимум: 8</code></pre>
+
+<h3>Произвольное количество аргументов</h3>
+
+<p>Иногда нужно передать функции неизвестное количество аргументов:</p>
+
+<pre><code>def sum_all(*args):
+    """Суммирует любое количество чисел"""
+    total = 0
+    for num in args:
+        total += num
+    return total
+
+print(sum_all(1, 2, 3))      # 6
+print(sum_all(10, 20, 30, 40))  # 100
+
+def print_info(**kwargs):
+    """Выводит информацию из именованных аргументов"""
+    for key, value in kwargs.items():
+        print(f'{key}: {value}')
+
+print_info(name='Анна', age=10, city='Москва')
+# name: Анна
+# age: 10
+# city: Москва</code></pre>
+
+<div class="card mt-3 mb-3">
+    <div class="card-body" style="background: #f8f9fa;">
+        <h5 class="card-title">📝 Области видимости переменных</h5>
+        <p>Переменные, созданные внутри функции, не видны снаружи. Это называется локальными переменными.</p>
+        <pre><code>def my_function():
+    x = 10  # локальная переменная
+    print(x)  # 10
+
+my_function()
+# print(x)  # Ошибка! x не существует здесь</code></pre>
+        <p>Чтобы изменить глобальную переменную внутри функции, используйте <code>global</code>:</p>
+        <pre><code>count = 0
+
+def increment():
+    global count
+    count += 1
+
+increment()
+print(count)  # 1</code></pre>
+    </div>
+</div>
+
+<h3>Lambda-функции (анонимные функции)</h3>
+
+<p>Это короткие функции, которые создаются без имени и обычно используются для простых операций.</p>
+
+<pre><code># Обычная функция
+def square(x):
+    return x ** 2
+
+# Lambda-функция
+square_lambda = lambda x: x ** 2
+
+print(square(5))       # 25
+print(square_lambda(5)) # 25
+
+# Часто используются с функциями sorted(), map(), filter()
+numbers = [1, 2, 3, 4, 5]
+
+# Удвоить каждый элемент
+doubled = list(map(lambda x: x * 2, numbers))
+print(doubled)  # [2, 4, 6, 8, 10]
+
+# Оставить только четные
+even = list(filter(lambda x: x % 2 == 0, numbers))
+print(even)  # [2, 4]
+
+# Сортировка по длине строки
+words = ['python', 'java', 'c++', 'javascript']
+words.sort(key=lambda x: len(x))
+print(words)  # ['c++', 'java', 'python', 'javascript']</code></pre>
+
+<h3>Практические примеры</h3>
+
+<pre><code># Пример 1: Калькулятор
+def calculator(a, b, operation):
+    if operation == '+':
+        return a + b
+    elif operation == '-':
+        return a - b
+    elif operation == '*':
+        return a * b
+    elif operation == '/':
+        return a / b if b != 0 else 'Ошибка: деление на ноль'
+    else:
+        return 'Неизвестная операция'
+
+print(calculator(10, 5, '+'))  # 15
+print(calculator(10, 5, '/'))  # 2.0
+
+# Пример 2: Факториал (рекурсивная функция)
+def factorial(n):
+    """Вычисляет факториал числа n! = 1 * 2 * ... * n"""
+    if n <= 1:
+        return 1
+    else:
+        return n * factorial(n - 1)
+
+print(factorial(5))  # 120
+
+# Пример 3: Проверка пароля
+def validate_password(password):
+    """Проверяет надежность пароля"""
+    if len(password) < 8:
+        return False, 'Слишком короткий (минимум 8 символов)'
+
+    has_digit = any(char.isdigit() for char in password)
+    has_upper = any(char.isupper() for char in password)
+
+    if not has_digit:
+        return False, 'Нет цифр'
+    if not has_upper:
+        return False, 'Нет заглавных букв'
+
+    return True, 'Пароль надежный'
+
+is_valid, message = validate_password('Python123')
+print(message)  # Пароль надежный
+
+# Пример 4: Игра "Камень, ножницы, бумага"
+import random
+
+def get_winner(player, computer):
+    if player == computer:
+        return 'Ничья'
+
+    winning_pairs = {
+        'камень': 'ножницы',
+        'ножницы': 'бумага',
+        'бумага': 'камень'
+    }
+
+    if winning_pairs[player] == computer:
+        return 'Вы выиграли!'
+    else:
+        return 'Компьютер выиграл!'
+
+def play_game():
+    choices = ['камень', 'ножницы', 'бумага']
+    player = input('Ваш выбор (камень/ножницы/бумага): ').lower()
+
+    if player not in choices:
+        print('Неверный выбор!')
+        return
+
+    computer = random.choice(choices)
+    print(f'Компьютер выбрал: {computer}')
+    print(get_winner(player, computer))
+
+# play_game()  # Раскомментируйте, чтобы сыграть</code></pre>
+
+<h3>Рекурсия</h3>
+
+<p>Рекурсия — это когда функция вызывает саму себя. Это мощный, но нужно быть осторожным, чтобы не создать бесконечную рекурсию.</p>
+
+<pre><code># Пример: вычисление числа Фибоначчи
+def fibonacci(n):
+    if n <= 1:
+        return n
+    return fibonacci(n - 1) + fibonacci(n - 2)
+
+print([fibonacci(i) for i in range(10)])
+# [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]</code></pre>
+
+<p>Теперь вы умеете создавать свои собственные функции! Это открывает огромные возможности для организации кода. Практикуйтесь и создавайте свои функции для разных задач!</p>
