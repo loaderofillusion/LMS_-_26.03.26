@@ -329,9 +329,9 @@ def quiz(lesson_id):
                 score += 1
 
         return render_template("quiz.html", quiz=quiz_obj, questions=questions,
-                               score=score, total=len(questions), passed=False)
+                               score=score, total=len(questions), passed=False, lesson_id=lesson_id)
 
-    return render_template("quiz.html", quiz=quiz_obj, questions=questions, passed=True)
+    return render_template("quiz.html", quiz=quiz_obj, questions=questions, passed=True, lesson_id=lesson_id)
 
 
 @app.route('/task/<int:task_id>', methods=['GET', 'POST'])
@@ -468,13 +468,7 @@ def leaderboard():
     db_sess = db_session.create_session()
     data = db_sess.query(User.name, UserProgress.completed_lessons, UserProgress.total_xp).join(User, User.id == UserProgress.user_id).order_by(UserProgress.total_xp.desc()).all()
     return render_template("leaderboard.html", data=data)
-@app.route('/lessons/content/<int:lesson_id>')
-@login_required
-def lessons_content(lesson_id):
-    db_sess = db_session.create_session()
-    data = db_sess.query(Task.title).filter(Task.lesson_id == lesson_id).order_by(Task.id.desc()).all()
-    print(data)
-    return ''
+
 
 if __name__ == '__main__':
     db_session.global_init("db/educational.db")
