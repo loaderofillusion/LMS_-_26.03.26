@@ -36,6 +36,10 @@
                         <h5>🎉 Поздравляем!</h5>
                         <p>Вы успешно завершили этот урок и получили {{ lesson.xp_reward }} XP!</p>
                         <a href="/lessons" class="btn btn-success">К следующему уроку →</a>
+                        <a href="/quiz/{{ lesson.id }}" class="btn btn-primary">Пройти тест ещё раз →</a>
+                        {% if lesson.tasks %}
+                            <a href="/task/{{ lesson.tasks[0].id }}" class="btn btn-outline-primary">Практическое задание</a>
+                        {% endif %}
                     </div>
                 {% endif %}
             </div>

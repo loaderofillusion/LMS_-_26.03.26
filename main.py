@@ -281,7 +281,7 @@ def lesson_detail(lesson_id):
     return render_template("lesson_detail.html", lesson=lesson, completed=completed)
 
 
-@app.route('/lesson/<int:lesson_id>/complete', methods=['POST'])
+@app.route('/lesson/<int:lesson_id>/complete', methods=['POST', 'GET'])
 @login_required
 def complete_lesson(lesson_id):
     db_sess = db_session.create_session()
@@ -305,7 +305,7 @@ def complete_lesson(lesson_id):
         db_sess.commit()
 
         # Проверяем достижения
-        check_achievements(current_user.id)
+
 
     return jsonify({"success": True, "xp": lesson.xp_reward})
 
@@ -327,9 +327,6 @@ def quiz(lesson_id):
             answer = request.form.get(f'q_{i}')
             if answer and int(answer) == question.correct_answer:
                 score += 1
-
-        if score >= len(questions) / 2:  # Проходной балл 50%
-            return redirect(f'/lesson/{lesson_id}/complete')
 
         return render_template("quiz.html", quiz=quiz_obj, questions=questions,
                                score=score, total=len(questions), passed=False)
@@ -470,11 +467,14 @@ def not_found(error):
 def leaderboard():
     db_sess = db_session.create_session()
     data = db_sess.query(User.name, UserProgress.completed_lessons, UserProgress.total_xp).join(User, User.id == UserProgress.user_id).order_by(UserProgress.total_xp.desc()).all()
-
-
-    print(data)
-
     return render_template("leaderboard.html", data=data)
+@app.route('/lessons/content/<int:lesson_id>')
+@login_required
+def lessons_content(lesson_id):
+    db_sess = db_session.create_session()
+    data = db_sess.query(Task.title).filter(Task.lesson_id == lesson_id).order_by(Task.id.desc()).all()
+    print(data)
+    return ''
 
 if __name__ == '__main__':
     db_session.global_init("db/educational.db")

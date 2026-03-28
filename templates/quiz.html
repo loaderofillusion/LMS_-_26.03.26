@@ -8,34 +8,34 @@
         <div class="card">
             <div class="card-body">
                 <h2 class="card-title">📝 Проверь свои знания</h2>
-                
+
                 {% if passed %}
-                    <form method="POST">
-                        {% for question in questions %}
-                            <div class="mb-4">
-                                <h5>{{ loop.index }}. {{ question.text }}</h5>
-                                {% set options = question.options.split(',') %}
-                                {% for opt in options %}
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" 
-                                               name="q_{{ loop.index0 }}" value="{{ loop.index0 }}" required>
-                                        <label class="form-check-label">{{ opt.strip() }}</label>
-                                    </div>
-                                {% endfor %}
-                            </div>
+                <form method="POST">
+                    {% for question in questions %}
+                    {% set q_index = loop.index0 %}
+                    <div class="mb-4">
+                        <h5>{{ loop.index }}. {{ question.text }}</h5>
+                        {% set options = question.options.split(',') %}
+                        {% for opt in options %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="q_{{ q_index }}" value="{{ loop.index0 }}" required>
+                            <label class="form-check-label">{{ opt.strip() }}</label>
+                        </div>
                         {% endfor %}
-                        <button type="submit" class="btn btn-primary">Проверить ответы</button>
-                    </form>
-                {% else %}
-                    <div class="alert alert-info">
-                        <h5>Ваш результат: {{ score }} из {{ total }}</h5>
-                        {% if score >= total/2 %}
-                            <p class="mb-0">✅ Поздравляем! Вы успешно прошли тест!</p>
-                        {% else %}
-                            <p class="mb-0">❌ Попробуйте еще раз и повторите материал!</p>
-                            <a href="javascript:history.back()" class="btn btn-primary mt-3">Вернуться к уроку</a>
-                        {% endif %}
                     </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-primary">Проверить ответы</button>
+                </form>
+                {% else %}
+                <div class="alert alert-info">
+                    <h5>Ваш результат: {{ score }} из {{ total }}</h5>
+                    {% if score >= total  %}
+                    <p class="mb-0">✅ Поздравляем! Вы успешно прошли тест!</p>
+                    {% else %}
+                    <p class="mb-0">❌ Повторите материал и попробуйте еще раз!</p>
+                    <a href="javascript:history.back()" class="btn btn-primary mt-3">Вернуться к уроку</a>
+                    {% endif %}
+                </div>
                 {% endif %}
             </div>
         </div>
