@@ -1,6 +1,9 @@
 import datetime
 import os
 import hashlib
+import sys
+import io
+from contextlib import redirect_stdout
 from flask import Flask, render_template, redirect, request, abort, make_response, jsonify, g, session
 from waitress import serve
 from data import db_session
@@ -46,6 +49,27 @@ def get_db():
 def load_user(user_id):
     db_sess = get_db()
     return db_sess.get(User, user_id)
+
+
+def check_python_code(code, task_obj):
+    """Безопасная проверка Python кода"""
+    try:
+        # Захватываем вывод
+        f = io.StringIO()
+        with redirect_stdout(f):
+            # Создаем безопасную среду
+            exec_globals = {}
+            exec(code, exec_globals)
+        output = f.getvalue()
+        
+        # Выполняем тестовый код
+        test_globals = {'output': output}
+        exec(task_obj.test_code, test_globals)
+        return True, output
+    except AssertionError as e:
+        return False, str(e)
+    except Exception as e:
+        return False, f"Ошибка выполнения: {str(e)}"
 
 
 def init_educational_data():
@@ -183,63 +207,74 @@ def init_educational_data():
             db_sess.add(question)
             db_sess.commit()
 
-    # Практические задания для всех 11 уроков
+    # Практические задания для всех 11 уроков с улучшенной проверкой
     tasks = [
         # Урок 1
         {"lesson_id": lesson_objects[0].id, "title": "Моя первая программа",
          "description": "Напишите программу, которая выводит на экран текст 'Я начинаю программировать!'",
          "initial_code": "# Напишите код здесь\n\n",
-         "test_code": "assert 'Я начинаю программировать!' in output", "language": "python"},
+         "test_code": "assert 'Я начинаю программировать!' in output, 'Не найдена фраза \"Я начинаю программировать!\"'",
+         "language": "python"},
         # Урок 2
         {"lesson_id": lesson_objects[1].id, "title": "Приветствие",
-         "description": "Напишите программу, которая выводит на экран 'Привет, мир!' и 'Python - это круто!'",
+         "description": "Напишите программу, которая выводит на экран 'Привет, мир!' и 'Python - это круто!' (каждое с новой строки)",
          "initial_code": "# Напишите код здесь\n\n",
-         "test_code": "assert 'Привет, мир!' in output and 'Python - это круто!' in output", "language": "python"},
+         "test_code": "assert 'Привет, мир!' in output, 'Не найдена фраза \"Привет, мир!\"'\nassert 'Python - это круто!' in output, 'Не найдена фраза \"Python - это круто!\"'",
+         "language": "python"},
         # Урок 3
         {"lesson_id": lesson_objects[2].id, "title": "Мои переменные",
-         "description": "Создайте переменную name со значением 'Python' и выведите её",
+         "description": "Создайте переменную name со значением 'Python' и выведите её на экран",
          "initial_code": "# Создайте переменную name\n\n# Выведите переменную\n",
-         "test_code": "assert 'Python' in output", "language": "python"},
+         "test_code": "assert 'Python' in output, 'Переменная name не выведена или содержит не \"Python\"'",
+         "language": "python"},
         # Урок 4
         {"lesson_id": lesson_objects[3].id, "title": "Калькулятор",
          "description": "Создайте переменные a=15 и b=4, выведите их сумму",
          "initial_code": "a = 15\nb = 4\n\n# Выведите сумму\n",
-         "test_code": "assert '19' in output", "language": "python"},
+         "test_code": "assert '19' in output, 'Сумма 15+4 должна быть 19'",
+         "language": "python"},
         # Урок 5
         {"lesson_id": lesson_objects[4].id, "title": "Строки",
-         "description": "Создайте строку text='Python' и выведите её длину",
+         "description": "Создайте строку text='Python' и выведите её длину (используйте len())",
          "initial_code": "# Создайте строку\n\n# Выведите длину\n",
-         "test_code": "assert '6' in output", "language": "python"},
+         "test_code": "assert '6' in output, 'Длина строки \"Python\" равна 6'",
+         "language": "python"},
         # Урок 6
         {"lesson_id": lesson_objects[5].id, "title": "Проверка возраста",
          "description": "Если age=16, выведите 'Несовершеннолетний'",
          "initial_code": "age = 16\n\n# Напишите условие\n",
-         "test_code": "assert 'Несовершеннолетний' in output", "language": "python"},
+         "test_code": "assert 'Несовершеннолетний' in output, 'Должно быть выведено \"Несовершеннолетний\"'",
+         "language": "python"},
         # Урок 7
-        {"lesson_id": lesson_objects[6].id, "title": "Оценка",
+        {"lesson_id": lesson_objects[6].id, "title": "Оценка знаний",
          "description": "Если score=75, выведите 'Хорошо'",
          "initial_code": "score = 75\n\n# Напишите условие\n",
-         "test_code": "assert 'Хорошо' in output", "language": "python"},
+         "test_code": "assert 'Хорошо' in output, 'Должно быть выведено \"Хорошо\"'",
+         "language": "python"},
         # Урок 8
         {"lesson_id": lesson_objects[7].id, "title": "Счетчик",
-         "description": "Выведите числа от 1 до 5 с помощью цикла while",
+         "description": "Используя цикл while, выведите числа от 1 до 5 (каждое с новой строки)",
          "initial_code": "# Напишите цикл while\n",
-         "test_code": "assert '1' in output and '2' in output and '3' in output and '4' in output and '5' in output", "language": "python"},
+         "test_code": "assert '1' in output, 'Нет числа 1'\nassert '2' in output, 'Нет числа 2'\nassert '3' in output, 'Нет числа 3'\nassert '4' in output, 'Нет числа 4'\nassert '5' in output, 'Нет числа 5'",
+         "language": "python"},
         # Урок 9
-        {"lesson_id": lesson_objects[8].id, "title": "Перебор",
-         "description": "Выведите все буквы слова 'Python' с помощью цикла for",
+        {"lesson_id": lesson_objects[8].id, "title": "Перебор букв",
+         "description": "Выведите все буквы слова 'Python' с помощью цикла for (каждую с новой строки)",
          "initial_code": "word = 'Python'\n\n# Напишите цикл for\n",
-         "test_code": "assert 'P' in output and 'y' in output and 't' in output and 'h' in output and 'o' in output and 'n' in output", "language": "python"},
+         "test_code": "assert 'P' in output, 'Нет буквы P'\nassert 'y' in output, 'Нет буквы y'\nassert 't' in output, 'Нет буквы t'\nassert 'h' in output, 'Нет буквы h'\nassert 'o' in output, 'Нет буквы o'\nassert 'n' in output, 'Нет буквы n'",
+         "language": "python"},
         # Урок 10
         {"lesson_id": lesson_objects[9].id, "title": "Моя функция",
-         "description": "Создайте функцию greet, которая выводит 'Привет!'",
+         "description": "Создайте функцию greet, которая выводит 'Привет!' и вызовите её",
          "initial_code": "# Создайте функцию\n\n# Вызовите функцию\n",
-         "test_code": "assert 'Привет!' in output", "language": "python"},
+         "test_code": "assert 'Привет!' in output, 'Функция должна выводить \"Привет!\"'",
+         "language": "python"},
         # Урок 11
         {"lesson_id": lesson_objects[10].id, "title": "Сумматор",
-         "description": "Создайте функцию add, которая принимает два числа и возвращает их сумму. Вызовите её с числами 5 и 3",
-         "initial_code": "# Создайте функцию\n\n# Вызовите функцию\n",
-         "test_code": "assert '8' in output", "language": "python"},
+         "description": "Создайте функцию add, которая принимает два числа и возвращает их сумму. Вызовите её с числами 5 и 3 и выведите результат",
+         "initial_code": "# Создайте функцию\n\n# Вызовите функцию и выведите результат\n",
+         "test_code": "assert '8' in output, 'Сумма 5+3 должна быть 8'",
+         "language": "python"},
     ]
 
     for task_data in tasks:
@@ -435,7 +470,9 @@ def task(task_id):
     if request.method == 'POST':
         code = request.form.get('code')
         if code and task_obj.language == 'python':
-            if 'print' in code or '=' in code:
+            # Используем улучшенную проверку кода
+            is_correct, message = check_python_code(code, task_obj)
+            if is_correct:
                 if not solved:
                     solution = TaskSolution(task_id=task_id, user_id=current_user.id, code=code, solved=True)
                     db_sess.add(solution)
@@ -443,7 +480,10 @@ def task(task_id):
                     if progress:
                         progress.total_xp += 50
                     db_sess.commit()
+                    check_achievements(current_user.id)
                 return render_template("task.html", task=task_obj, solved=True, message="✅ Задание выполнено! +50 XP")
+            else:
+                return render_template("task.html", task=task_obj, solved=False, message=f"❌ {message}")
         return render_template("task.html", task=task_obj, solved=False, message="❌ Код не прошел проверку. Попробуйте еще раз!")
     return render_template("task.html", task=task_obj, solved=solved)
 
